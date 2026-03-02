@@ -12,13 +12,15 @@
 3. Frontend: create `frontend/.env` with:
    - `VITE_API_BASE_URL` — Backend API URL (e.g. http://localhost:8080)
    - `VITE_GOOGLE_MAPS_API_KEY` — For map display
-
+  
 ## Local development
 
-1. Start Postgres: `docker-compose up -d db`
-2. Run migrations: `npm run db:migrate`
-3. Sync datasets (once): `curl -X POST http://localhost:8080/api/admin/datasets/sync -H "x-admin-key: YOUR_KEY"`
-4. Start dev: `npm run dev` (runs backend + frontend)
+1. Install dependencies: 'npm install'
+2. Start dev: 'npm run dev'
+3. Start Postgres: `docker-compose up -d db`
+4. Run migrations: `npm run db:migrate`
+5. Sync datasets (once): `curl -X POST http://localhost:8080/api/admin/datasets/sync -H "x-admin-key: YOUR_KEY"`
+6. Start dev: `npm run dev` (runs backend + frontend)
 
 ## Deployment
 
