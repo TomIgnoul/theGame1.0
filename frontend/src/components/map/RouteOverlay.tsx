@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { decodePolyline } from '../../utils/polyline';
 
 interface RouteOverlayProps {
   map: google.maps.Map | null;
@@ -17,8 +18,10 @@ export function RouteOverlay({ map, polyline }: RouteOverlayProps) {
     }
 
     if (polyline) {
-      const path = google.maps.geometry?.encoding?.decodePath(polyline);
-      if (path) {
+      const decodedPath = google.maps.geometry?.encoding?.decodePath(polyline);
+      const path = decodedPath ?? decodePolyline(polyline);
+
+      if (path.length > 0) {
         const line = new google.maps.Polyline({
           path,
           geodesic: true,

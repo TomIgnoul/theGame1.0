@@ -5,9 +5,13 @@ import { ALLOWED_THEMES } from '../../constants';
 const THEMES = [...ALLOWED_THEMES];
 
 export function RouteConfigPanel() {
-  const { theme, kmTarget, shape, start, end, routeResult, setTheme, setKmTarget, setShape, setStart, setRouteResult, setMapClickMode } = useRouteStore();
+  const { theme, kmTarget, shape, start, end, mapClickMode, routeResult, setTheme, setKmTarget, setShape, setStart, setRouteResult, setMapClickMode } = useRouteStore();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const focusMap = () => {
+    document.getElementById('route-map')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   const handleGenerate = async () => {
     if (!start) {
@@ -79,7 +83,10 @@ export function RouteConfigPanel() {
         <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
           <button
             type="button"
-            onClick={() => setMapClickMode('start')}
+            onClick={() => {
+              setMapClickMode('start');
+              focusMap();
+            }}
             style={{ flex: 1, padding: '0.5rem' }}
           >
             {start ? `${start.lat.toFixed(4)}, ${start.lng.toFixed(4)}` : 'Click map'}
@@ -107,7 +114,10 @@ export function RouteConfigPanel() {
           </label>
           <button
             type="button"
-            onClick={() => setMapClickMode('end')}
+            onClick={() => {
+              setMapClickMode('end');
+              focusMap();
+            }}
             style={{ width: '100%', padding: '0.5rem' }}
           >
             {end ? `End: ${end.lat.toFixed(4)}, ${end.lng.toFixed(4)}` : 'Click map to set end'}
@@ -128,6 +138,12 @@ export function RouteConfigPanel() {
           <option value="a_to_b">A to B</option>
         </select>
       </div>
+
+      {mapClickMode && (
+        <p style={{ margin: '0.5rem 0', fontSize: '0.875rem', color: '#1d4ed8' }}>
+          Waiting for map click to set {mapClickMode === 'start' ? 'start' : 'end'} point...
+        </p>
+      )}
 
       <button
         onClick={handleGenerate}

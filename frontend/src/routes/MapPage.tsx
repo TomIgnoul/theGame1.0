@@ -4,15 +4,15 @@ import { GemDetailDrawer } from '../components/gem-detail/GemDetailDrawer';
 
 export function MapPage() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-      <header style={{ padding: '0.5rem 1rem', borderBottom: '1px solid #eee' }}>
-        <h1 style={{ margin: 0, fontSize: '1.25rem' }}>Hidden Gems Brussels</h1>
+    <div className="map-page">
+      <header className="map-page__header">
+        <h1 className="map-page__title">Hidden Gems Brussels</h1>
       </header>
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-        <aside style={{ width: 320, padding: '1rem', borderRight: '1px solid #eee', overflowY: 'auto' }}>
+      <div className="map-page__content">
+        <aside className="map-page__sidebar">
           <RouteConfigPanel />
         </aside>
-        <main style={{ flex: 1, position: 'relative' }}>
+        <main className="map-page__main">
           <MapView />
           <GemDetailDrawer />
         </main>
