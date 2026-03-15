@@ -4,6 +4,37 @@ import { ping } from './db';
 const app = express();
 app.use(express.json());
 
+// Basic CORS for frontend dev
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const origin = req.headers.origin ?? '*';
+  // Allow Vite dev server and same-origin calls
+  const allowedOrigins = [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+  ];
+
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
+
+  res.header(
+    'Access-Control-Allow-Methods',
+    'GET,POST,PUT,PATCH,DELETE,OPTIONS',
+  );
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Content-Type,Authorization,x-admin-key',
+  );
+  res.header('Access-Control-Allow-Credentials', 'true');
+
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(204);
+    return;
+  }
+
+  next();
+});
+
 // Health
 app.get('/api/health', async (_req: Request, res: Response) => {
   const db = await ping();
