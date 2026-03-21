@@ -1,26 +1,31 @@
 import OpenAI from 'openai';
+import type { StoryLanguage } from '../../config/constants';
+import type { Gem } from '../gems/gems.repo';
+import { buildStoryPrompt } from './story.prompt';
 
 const client = process.env.OPENAI_API_KEY
   ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
   : null;
 
 export async function generateStory(
-  gemTitle: string,
-  gemAddress: string | null,
+  gem: Pick<
+    Gem,
+    'title' | 'theme' | 'address' | 'descriptionShort' | 'practicalInfo'
+  >,
   theme: string,
-  language: string
+  language: StoryLanguage
 ): Promise<string> {
   if (!client) throw new Error('OPENAI_API_KEY required for story generation');
 
-  const prompt = `Write a short, engaging story (2-3 paragraphs) about "${gemTitle}"${gemAddress ? ` at ${gemAddress}` : ''} in Brussels, themed around ${theme}. Write in ${language === 'fr' ? 'French' : language === 'nl' ? 'Dutch' : 'English'}. Use only factual context about the location. Do not invent opening hours, contact info, or practical details.`;
+  const prompt = buildStoryPrompt(gem, theme, language);
 
   const completion = await client.chat.completions.create({
     model: 'gpt-4o-mini',
     messages: [{ role: 'user', content: prompt }],
-    max_tokens: 500,
+    max_tokens: 220,
   });
 
   const text = completion.choices[0]?.message?.content;
   if (!text) throw new Error('Empty AI response');
-  return text;
+  return text.trim();
 }

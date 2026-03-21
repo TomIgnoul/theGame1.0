@@ -1,8 +1,21 @@
 import express, { Request, Response, NextFunction } from 'express';
+import {
+  ALLOWED_THEMES,
+  ALLOWED_STORY_LANGUAGES,
+  STORY_RATE_LIMIT_MAX_REQUESTS,
+  STORY_RATE_LIMIT_WINDOW_MS,
+} from './config/constants';
 import { ping } from './db';
+import { createInMemoryRateLimit } from './middleware/simpleRateLimit';
 
 const app = express();
 app.use(express.json());
+
+const storyRateLimit = createInMemoryRateLimit({
+  maxRequests: STORY_RATE_LIMIT_MAX_REQUESTS,
+  windowMs: STORY_RATE_LIMIT_WINDOW_MS,
+  message: 'Too many story requests. Please wait and try again.',
+});
 
 // Basic CORS for frontend dev
 app.use((req: Request, res: Response, next: NextFunction) => {
@@ -101,15 +114,33 @@ app.post('/api/routes', async (req: Request, res: Response) => {
 });
 
 // Story
-app.post('/api/gems/:id/story', async (req: Request, res: Response) => {
+app.post('/api/gems/:id/story', storyRateLimit, async (req: Request, res: Response) => {
   const { id } = req.params;
   if (!id || !/^[0-9a-f-]{36}$/i.test(id)) {
     res.status(400).json({ error: 'Invalid ID format' });
     return;
   }
-  const body = (req.body || {}) as { theme?: string; language?: string };
-  const theme = body.theme ?? 'Culture';
-  const language = body.language ?? 'en';
+  const body = (req.body || {}) as { theme?: unknown; language?: unknown };
+  const theme = typeof body.theme === 'string' ? body.theme.trim() : '';
+  const language = typeof body.language === 'string' ? body.language.trim() : '';
+
+  const { isValidTheme } = await import('./modules/gems/gems.repo');
+  if (!theme || !isValidTheme(theme)) {
+    res.status(400).json({
+      error: `Invalid theme value. Allowed values: ${isValidThemeList()}`,
+      code: 'invalid_theme',
+    });
+    return;
+  }
+
+  if (!isValidStoryLanguage(language)) {
+    res.status(400).json({
+      error: `Invalid language value. Allowed values: ${ALLOWED_STORY_LANGUAGES.join(', ')}`,
+      code: 'invalid_language',
+    });
+    return;
+  }
+
   try {
     const { getOrCreateStory } = await import('./modules/stories/stories.service');
     const result = await getOrCreateStory(id, theme, language);
@@ -118,9 +149,21 @@ app.post('/api/gems/:id/story', async (req: Request, res: Response) => {
       return;
     }
     res.json(result);
-  } catch (err) {
+  } catch (err: unknown) {
+    const { StoryServiceError } = await import('./modules/stories/stories.service');
+    if (err instanceof StoryServiceError) {
+      res.status(err.status).json({
+        error: err.message,
+        code: err.code,
+      });
+      return;
+    }
+
     console.error(err);
-    res.status(502).json({ error: 'Story generation failed' });
+    res.status(500).json({
+      error: 'Unexpected story error',
+      code: 'story_unexpected_error',
+    });
   }
 });
 
@@ -155,3 +198,13 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 });
 
 export default app;
+
+function isValidStoryLanguage(value: string): value is (typeof ALLOWED_STORY_LANGUAGES)[number] {
+  return ALLOWED_STORY_LANGUAGES.includes(
+    value as (typeof ALLOWED_STORY_LANGUAGES)[number],
+  );
+}
+
+function isValidThemeList() {
+  return ALLOWED_THEMES.join(', ');
+}

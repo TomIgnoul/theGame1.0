@@ -23,7 +23,7 @@ export const gemsApi = {
   get: (id: string) =>
     api<import('../types').Gem>(`/api/gems/${id}`),
   story: (id: string, theme: string, language = 'en') =>
-    api<{ gemId: string; theme: string; language: string; promptVersion: string; storyText: string }>(
+    api<import('../types').StoryResponse>(
       `/api/gems/${id}/story`,
       {
         method: 'POST',

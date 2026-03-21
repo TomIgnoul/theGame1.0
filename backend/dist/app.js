@@ -37,9 +37,36 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const constants_1 = require("./config/constants");
 const db_1 = require("./db");
+const simpleRateLimit_1 = require("./middleware/simpleRateLimit");
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
+const storyRateLimit = (0, simpleRateLimit_1.createInMemoryRateLimit)({
+    maxRequests: constants_1.STORY_RATE_LIMIT_MAX_REQUESTS,
+    windowMs: constants_1.STORY_RATE_LIMIT_WINDOW_MS,
+    message: 'Too many story requests. Please wait and try again.',
+});
+// Basic CORS for frontend dev
+app.use((req, res, next) => {
+    const origin = req.headers.origin ?? '*';
+    // Allow Vite dev server and same-origin calls
+    const allowedOrigins = [
+        'http://localhost:5173',
+        'http://127.0.0.1:5173',
+    ];
+    if (allowedOrigins.includes(origin)) {
+        res.header('Access-Control-Allow-Origin', origin);
+    }
+    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization,x-admin-key');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    if (req.method === 'OPTIONS') {
+        res.sendStatus(204);
+        return;
+    }
+    next();
+});
 // Health
 app.get('/api/health', async (_req, res) => {
     const db = await (0, db_1.ping)();
@@ -97,15 +124,30 @@ app.post('/api/routes', async (req, res) => {
     }
 });
 // Story
-app.post('/api/gems/:id/story', async (req, res) => {
+app.post('/api/gems/:id/story', storyRateLimit, async (req, res) => {
     const { id } = req.params;
     if (!id || !/^[0-9a-f-]{36}$/i.test(id)) {
         res.status(400).json({ error: 'Invalid ID format' });
         return;
     }
     const body = (req.body || {});
-    const theme = body.theme ?? 'Culture';
-    const language = body.language ?? 'en';
+    const theme = typeof body.theme === 'string' ? body.theme.trim() : '';
+    const language = typeof body.language === 'string' ? body.language.trim() : '';
+    const { isValidTheme } = await Promise.resolve().then(() => __importStar(require('./modules/gems/gems.repo')));
+    if (!theme || !isValidTheme(theme)) {
+        res.status(400).json({
+            error: `Invalid theme value. Allowed values: ${isValidThemeList()}`,
+            code: 'invalid_theme',
+        });
+        return;
+    }
+    if (!isValidStoryLanguage(language)) {
+        res.status(400).json({
+            error: `Invalid language value. Allowed values: ${constants_1.ALLOWED_STORY_LANGUAGES.join(', ')}`,
+            code: 'invalid_language',
+        });
+        return;
+    }
     try {
         const { getOrCreateStory } = await Promise.resolve().then(() => __importStar(require('./modules/stories/stories.service')));
         const result = await getOrCreateStory(id, theme, language);
@@ -116,8 +158,19 @@ app.post('/api/gems/:id/story', async (req, res) => {
         res.json(result);
     }
     catch (err) {
+        const { StoryServiceError } = await Promise.resolve().then(() => __importStar(require('./modules/stories/stories.service')));
+        if (err instanceof StoryServiceError) {
+            res.status(err.status).json({
+                error: err.message,
+                code: err.code,
+            });
+            return;
+        }
         console.error(err);
-        res.status(502).json({ error: 'Story generation failed' });
+        res.status(500).json({
+            error: 'Unexpected story error',
+            code: 'story_unexpected_error',
+        });
     }
 });
 // Admin sync (requires x-admin-key)
@@ -149,4 +202,10 @@ app.use((err, _req, res, _next) => {
     res.status(500).json({ error: 'Internal server error' });
 });
 exports.default = app;
+function isValidStoryLanguage(value) {
+    return constants_1.ALLOWED_STORY_LANGUAGES.includes(value);
+}
+function isValidThemeList() {
+    return constants_1.ALLOWED_THEMES.join(', ');
+}
 //# sourceMappingURL=app.js.map

@@ -5,6 +5,9 @@ export declare const MAX_GEMS = 10;
 export declare const DEFAULT_GEMS = 8;
 export declare const ROUTE_TOLERANCE_PERCENT = 10;
 export declare const ROUTE_MAX_RETRIES = 2;
+export declare const STORY_TIMEOUT_MS = 20000;
+export declare const STORY_RATE_LIMIT_MAX_REQUESTS = 10;
+export declare const STORY_RATE_LIMIT_WINDOW_MS = 60000;
 export declare const DEFAULT_THEME = "Culture";
 export declare const DEFAULT_SHAPE: "loop";
 export declare const DEFAULT_MAP_CENTER: {
@@ -12,5 +15,7 @@ export declare const DEFAULT_MAP_CENTER: {
     lng: number;
 };
 export declare const ALLOWED_THEMES: readonly ["Culture", "Art", "War", "Beverages", "Leisure", "History", "Architecture"];
+export declare const ALLOWED_STORY_LANGUAGES: readonly ["en", "nl"];
 export type Theme = (typeof ALLOWED_THEMES)[number];
+export type StoryLanguage = (typeof ALLOWED_STORY_LANGUAGES)[number];
 //# sourceMappingURL=constants.d.ts.map
