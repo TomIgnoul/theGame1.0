@@ -331,7 +331,7 @@ Generates a route and returns polyline + selected gems. No persistence required.
 
 **POST `/api/gems/:id/story`**
 
-Returns cached story if available, otherwise generates and stores it.
+Returns cached story if available, otherwise generates and stores it through the configured backend AI runtime.
 
 **Request**
 
@@ -356,6 +356,33 @@ Returns cached story if available, otherwise generates and stores it.
 - `404` gem not found
 - `502` upstream AI failure (provider error)
 - `503` generation timeout
+
+### POI chat (MVP extension)
+
+**POST `/api/chat`**
+
+Returns a short, POI-scoped reply for the selected gem. This is a drawer-level MVP extension and is not the same as the older route-stop chat requirement.
+
+**Request**
+
+```json
+{ "gemId":"uuid", "message":"What makes this place interesting?", "sessionId":"optional-string" }
+```
+
+**Response**
+
+```json
+{
+  "reply":"...",
+  "sessionId":"opaque-session-id"
+}
+```
+
+**Errors**
+
+- `400` invalid `gemId` or invalid message
+- `404` gem not found
+- `502` upstream AI failure (provider unavailable or invalid provider response)
 
 ### Data sync (team/admin only)
 
@@ -683,8 +710,9 @@ hidden-gems-brussels/
 - Backend:
     - `DATABASE_URL`
     - `GOOGLE_ROUTES_API_KEY` (backend-only)
-    - `AI_PROVIDER` (e.g., openai)
-    - `OPENAI_API_KEY` (backend-only)
+    - `AI_PROVIDER=ollama`
+    - `OLLAMA_BASE_URL`
+    - `OLLAMA_MODEL`
     - `ADMIN_API_KEY`
     - `KM_MIN`, `KM_MAX` (optional; can be constants)
     - `MIN_GEMS`, `MAX_GEMS`, `DEFAULT_GEMS`
@@ -921,7 +949,7 @@ Purpose: map connections, requirements, and failure behavior so implementation s
 **AI Text Generation Provider (Backend)**
 
 - Purpose: generate story text for gem detail
-- Integration: backend prompt built from project-owned facts → AI API call → cache in `gem_stories`
+- Integration: backend prompt built from project-owned facts → backend AI runtime call (Ollama for the MVP path) → cache in `gem_stories`
 - Requirements:
     - strict “no invented practical info”
     - caching by gem/theme/language/promptVersion
@@ -961,7 +989,19 @@ Purpose: map connections, requirements, and failure behavior so implementation s
     - if miss: builds prompt from gem facts → AI call → stores story
 5. Frontend displays story (with AI label) + practical info
 
-**Flow D — Data sync (admin)**
+**Flow D — POI chat (MVP extension)**
+
+1. User opens the gem detail drawer
+2. Frontend sends `POST /api/chat` with `gemId`, message text, and optional `sessionId`
+3. Backend:
+    - validates `gemId` and message length
+    - loads POI facts from the gem record
+    - builds a POI-fact-only conversational prompt
+    - calls the backend AI runtime
+4. Backend returns a simplified reply object
+5. Frontend updates the local transcript inside the drawer
+
+**Flow E — Data sync (admin)**
 
 1. Team triggers `POST /api/admin/datasets/sync` with `x-admin-key`
 2. Backend fetches dataset(s) → normalizes → upserts `gems` and updates `datasets.last_synced_at`
@@ -1071,6 +1111,10 @@ Purpose: ship a stable MVP with a 2-person team without over-engineering.
     - cache hit returns without calling provider (mock provider)
     - cache miss stores in `gem_stories`
     - 404 for unknown gem
+- `POST /api/chat`
+    - validates `gemId` + message length
+    - returns a simplified `{ reply, sessionId }` payload
+    - does not persist chat transcript
 
 **Admin sync**
 

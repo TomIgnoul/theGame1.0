@@ -23,7 +23,7 @@ export const gemsApi = {
   get: (id: string) =>
     api<import('../types').Gem>(`/api/gems/${id}`),
   story: (id: string, theme: string, language = 'en') =>
-    api<{ gemId: string; theme: string; language: string; promptVersion: string; storyText: string }>(
+    api<import('../types').StoryResponse>(
       `/api/gems/${id}/story`,
       {
         method: 'POST',
@@ -43,5 +43,13 @@ export const routesApi = {
     api<import('../types').RouteResultState>('/api/routes', {
       method: 'POST',
       body: JSON.stringify(config),
+    }),
+};
+
+export const chatApi = {
+  send: (payload: import('../features/chat/types').ChatRequest) =>
+    api<import('../features/chat/types').ChatResponse>('/api/chat', {
+      method: 'POST',
+      body: JSON.stringify(payload),
     }),
 };

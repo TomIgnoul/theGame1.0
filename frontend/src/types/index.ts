@@ -49,3 +49,12 @@ export interface StoryState {
   text?: string;
   error?: string;
 }
+
+export interface StoryResponse {
+  gemId: string;
+  theme: string;
+  language: 'en' | 'nl';
+  promptVersion: string;
+  storyText: string;
+  source: 'cache' | 'generated';
+}
