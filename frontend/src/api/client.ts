@@ -45,3 +45,11 @@ export const routesApi = {
       body: JSON.stringify(config),
     }),
 };
+
+export const chatApi = {
+  send: (payload: import('../features/chat/types').ChatRequest) =>
+    api<import('../features/chat/types').ChatResponse>('/api/chat', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+};

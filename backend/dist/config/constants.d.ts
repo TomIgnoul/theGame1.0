@@ -8,6 +8,9 @@ export declare const ROUTE_MAX_RETRIES = 2;
 export declare const STORY_TIMEOUT_MS = 20000;
 export declare const STORY_RATE_LIMIT_MAX_REQUESTS = 10;
 export declare const STORY_RATE_LIMIT_WINDOW_MS = 60000;
+export declare const CHAT_MESSAGE_MAX_LENGTH = 500;
+export declare const CHAT_RATE_LIMIT_MAX_REQUESTS = 10;
+export declare const CHAT_RATE_LIMIT_WINDOW_MS = 60000;
 export declare const DEFAULT_THEME = "Culture";
 export declare const DEFAULT_SHAPE: "loop";
 export declare const DEFAULT_MAP_CENTER: {

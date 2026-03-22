@@ -8,6 +8,9 @@ export const ROUTE_MAX_RETRIES = 2;
 export const STORY_TIMEOUT_MS = 20_000;
 export const STORY_RATE_LIMIT_MAX_REQUESTS = 10;
 export const STORY_RATE_LIMIT_WINDOW_MS = 60_000;
+export const CHAT_MESSAGE_MAX_LENGTH = 500;
+export const CHAT_RATE_LIMIT_MAX_REQUESTS = 10;
+export const CHAT_RATE_LIMIT_WINDOW_MS = 60_000;
 
 export const DEFAULT_THEME = 'Culture';
 export const DEFAULT_SHAPE = 'loop' as const;

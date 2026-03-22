@@ -4,6 +4,7 @@ exports.StoryServiceError = void 0;
 exports.getOrCreateStory = getOrCreateStory;
 const constants_1 = require("../../config/constants");
 const db_1 = require("../../db");
+const aiRuntime_1 = require("../ai/aiRuntime");
 const gems_repo_1 = require("../gems/gems.repo");
 const ai_provider_1 = require("./ai.provider");
 const PROMPT_VERSION = process.env.PROMPT_VERSION ?? 'v1';
@@ -21,6 +22,9 @@ async function getOrCreateStory(gemId, theme, language) {
     catch (error) {
         if (error instanceof StoryServiceError) {
             throw error;
+        }
+        if (error instanceof aiRuntime_1.AiRuntimeError) {
+            throw new StoryServiceError(error.status, error.code, error.message);
         }
         throw new StoryServiceError(502, 'story_generation_failed', 'Story generation failed');
     }

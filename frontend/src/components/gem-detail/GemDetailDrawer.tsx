@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useGemDetailStore } from '../../store/gemDetailStore';
 import { gemsApi } from '../../api/client';
+import { ChatPanel } from '../../features/chat/ChatPanel';
 
 export function GemDetailDrawer() {
   const { selectedGemId, setSelectedGemId } = useGemDetailStore();
@@ -151,6 +152,10 @@ export function GemDetailDrawer() {
               </button>
             </>
           )}
+
+          <hr style={{ margin: '1rem 0', border: 'none', borderTop: '1px solid #eee' }} />
+
+          <ChatPanel gemId={gem.id} title={gem.title} />
         </>
       )}
     </div>

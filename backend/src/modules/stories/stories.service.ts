@@ -3,6 +3,7 @@ import {
   type StoryLanguage,
 } from '../../config/constants';
 import { pool } from '../../db';
+import { AiRuntimeError } from '../ai/aiRuntime';
 import { findById } from '../gems/gems.repo';
 import { generateStory } from './ai.provider';
 
@@ -38,6 +39,10 @@ export async function getOrCreateStory(
   } catch (error) {
     if (error instanceof StoryServiceError) {
       throw error;
+    }
+
+    if (error instanceof AiRuntimeError) {
+      throw new StoryServiceError(error.status, error.code, error.message);
     }
 
     throw new StoryServiceError(

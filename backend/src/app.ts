@@ -1,7 +1,11 @@
+import { randomUUID } from 'node:crypto';
 import express, { Request, Response, NextFunction } from 'express';
 import {
   ALLOWED_THEMES,
   ALLOWED_STORY_LANGUAGES,
+  CHAT_MESSAGE_MAX_LENGTH,
+  CHAT_RATE_LIMIT_MAX_REQUESTS,
+  CHAT_RATE_LIMIT_WINDOW_MS,
   STORY_RATE_LIMIT_MAX_REQUESTS,
   STORY_RATE_LIMIT_WINDOW_MS,
 } from './config/constants';
@@ -15,6 +19,12 @@ const storyRateLimit = createInMemoryRateLimit({
   maxRequests: STORY_RATE_LIMIT_MAX_REQUESTS,
   windowMs: STORY_RATE_LIMIT_WINDOW_MS,
   message: 'Too many story requests. Please wait and try again.',
+});
+
+const chatRateLimit = createInMemoryRateLimit({
+  maxRequests: CHAT_RATE_LIMIT_MAX_REQUESTS,
+  windowMs: CHAT_RATE_LIMIT_WINDOW_MS,
+  message: 'Too many chat requests. Please wait and try again.',
 });
 
 // Basic CORS for frontend dev
@@ -109,6 +119,80 @@ app.post('/api/routes', async (req: Request, res: Response) => {
     res.status(status).json({
       error: e.message ?? 'Route generation failed',
       code: e.code,
+    });
+  }
+});
+
+// Chat
+app.post('/api/chat', chatRateLimit, async (req: Request, res: Response) => {
+  const body = (req.body || {}) as {
+    message?: unknown;
+    sessionId?: unknown;
+    gemId?: unknown;
+  };
+
+  const message = typeof body.message === 'string' ? body.message.trim() : '';
+  const gemId = typeof body.gemId === 'string' ? body.gemId.trim() : '';
+  const sessionId = typeof body.sessionId === 'string' ? body.sessionId.trim() : '';
+
+  if (!gemId || !/^[0-9a-f-]{36}$/i.test(gemId)) {
+    res.status(400).json({
+      error: 'Invalid gemId format',
+      code: 'invalid_gem_id',
+    });
+    return;
+  }
+
+  if (!message) {
+    res.status(400).json({
+      error: 'Message is required',
+      code: 'missing_message',
+    });
+    return;
+  }
+
+  if (message.length > CHAT_MESSAGE_MAX_LENGTH) {
+    res.status(400).json({
+      error: `Message must be ${CHAT_MESSAGE_MAX_LENGTH} characters or fewer`,
+      code: 'message_too_long',
+    });
+    return;
+  }
+
+  try {
+    const { findById } = await import('./modules/gems/gems.repo');
+    const gem = await findById(gemId);
+    if (!gem) {
+      res.status(404).json({
+        error: 'Gem not found',
+        code: 'gem_not_found',
+      });
+      return;
+    }
+
+    const { buildChatMessages } = await import('./modules/chat/promptService');
+    const { generateChatReply } = await import('./modules/chat/aiService');
+
+    const reply = await generateChatReply(buildChatMessages(gem, message));
+
+    res.json({
+      reply,
+      sessionId: sessionId || randomUUID(),
+    });
+  } catch (err: unknown) {
+    const { AiRuntimeError } = await import('./modules/ai/aiRuntime');
+    if (err instanceof AiRuntimeError) {
+      res.status(err.status).json({
+        error: err.message,
+        code: err.code,
+      });
+      return;
+    }
+
+    console.error(err);
+    res.status(502).json({
+      error: 'Chat generation failed',
+      code: 'chat_generation_failed',
     });
   }
 });
