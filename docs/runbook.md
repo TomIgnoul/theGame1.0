@@ -8,7 +8,8 @@
    - `ADMIN_API_KEY` — Secret for admin sync (POST /api/admin/datasets/sync)
    - `GOOGLE_ROUTES_API_KEY` or `GOOGLE_MAPS_API_KEY` — For route computation (Directions API)
    - `AI_PROVIDER=ollama` — Default local AI runtime selector for POI story + POI chat
-   - `OLLAMA_BASE_URL=http://localhost:11434` — Local Ollama base URL
+   - `OLLAMA_BASE_URL=http://localhost:11434` — Ollama base URL; remote endpoints with or without `/api` are accepted
+   - `OLLAMA_API_KEY` — Optional for secured remote Ollama-compatible endpoints
    - `OLLAMA_MODEL=llama3.2` — Local model name used for POI story + POI chat
    - `PROMPT_VERSION=v1` — Story cache version key
 
@@ -35,6 +36,7 @@
 3. Send a POI chat message:
    - `curl -X POST http://localhost:8080/api/chat -H "Content-Type: application/json" -d '{"gemId":"<GEM_ID>","message":"What makes this place interesting?"}'`
 4. If either request fails with an Ollama-unavailable error, verify the Ollama app/service is running and the configured model exists locally.
+5. For a secured remote Ollama-compatible endpoint, set `OLLAMA_BASE_URL` to the remote host, set `OLLAMA_API_KEY`, and keep `AI_PROVIDER=ollama` or `AI_PROVIDER=ollama_cloud`.
 
 ## Deployment
 
@@ -50,5 +52,5 @@
 
 - **Health db: false** — Check DATABASE_URL and Postgres is running
 - **Route generation fails** — Ensure GOOGLE_ROUTES_API_KEY is set; check Directions API is enabled
-- **Story or chat generation fails** — Ensure Ollama is running, `OLLAMA_BASE_URL` is correct, and the configured `OLLAMA_MODEL` has been pulled locally
+- **Story or chat generation fails** — Ensure Ollama is reachable, `OLLAMA_BASE_URL` is correct, the configured `OLLAMA_MODEL` exists on that host, and `OLLAMA_API_KEY` is set when the endpoint requires authentication
 - **Map not loading** — Ensure VITE_GOOGLE_MAPS_API_KEY is set; check Maps JavaScript API is enabled

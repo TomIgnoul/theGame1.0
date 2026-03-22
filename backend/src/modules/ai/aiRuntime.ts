@@ -17,7 +17,7 @@ export class AiRuntimeError extends Error {
 export async function generateAiText(messages: AiMessage[]): Promise<string> {
   const provider = (process.env.AI_PROVIDER ?? 'ollama').trim().toLowerCase();
 
-  if (provider !== 'ollama') {
+  if (!isSupportedOllamaProvider(provider)) {
     throw new AiRuntimeError(
       500,
       'unsupported_ai_provider',
@@ -29,19 +29,16 @@ export async function generateAiText(messages: AiMessage[]): Promise<string> {
 }
 
 async function generateWithOllama(messages: AiMessage[]): Promise<string> {
-  const baseUrl = (process.env.OLLAMA_BASE_URL ?? 'http://localhost:11434')
-    .trim()
-    .replace(/\/+$/, '');
+  const baseUrl = process.env.OLLAMA_BASE_URL ?? 'http://localhost:11434';
   const model = (process.env.OLLAMA_MODEL ?? 'llama3.2').trim();
+  const apiKey = process.env.OLLAMA_API_KEY?.trim();
 
   let response: Response;
 
   try {
-    response = await fetch(`${baseUrl}/api/chat`, {
+    response = await fetch(buildOllamaChatUrl(baseUrl), {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: buildOllamaHeaders(apiKey),
       body: JSON.stringify({
         model,
         messages,
@@ -93,4 +90,35 @@ async function safeParseJson(response: Response): Promise<unknown> {
   } catch {
     return null;
   }
+}
+
+function isSupportedOllamaProvider(provider: string): boolean {
+  return provider === 'ollama' || provider === 'ollama_cloud';
+}
+
+function buildOllamaChatUrl(baseUrl: string): string {
+  const normalizedBaseUrl = baseUrl.trim().replace(/\/+$/, '');
+  if (normalizedBaseUrl.endsWith('/api')) {
+    return `${normalizedBaseUrl}/chat`;
+  }
+
+  return `${normalizedBaseUrl}/api/chat`;
+}
+
+function buildOllamaHeaders(apiKey: string | undefined): Record<string, string> {
+  if (!apiKey) {
+    return {
+      'Content-Type': 'application/json',
+    };
+  }
+
+  const authorization = apiKey.startsWith('Bearer ')
+    ? apiKey
+    : `Bearer ${apiKey}`;
+
+  return {
+    'Content-Type': 'application/json',
+    Authorization: authorization,
+    'X-API-Key': apiKey,
+  };
 }

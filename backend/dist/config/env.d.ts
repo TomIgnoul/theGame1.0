@@ -4,6 +4,7 @@ export declare function loadEnv(): {
     PORT: number;
     AI_PROVIDER: string;
     OLLAMA_BASE_URL: string;
+    OLLAMA_API_KEY: string;
     OLLAMA_MODEL: string;
     GOOGLE_ROUTES_API_KEY: string;
 };
