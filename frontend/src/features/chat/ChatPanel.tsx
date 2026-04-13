@@ -1,14 +1,24 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useChat } from './useChat';
+import { analyticsApi } from '../../api/client';
 
 interface ChatPanelProps {
   gemId: string;
   title: string;
+  theme: string;
 }
 
-export function ChatPanel({ gemId, title }: ChatPanelProps) {
+export function ChatPanel({ gemId, title, theme }: ChatPanelProps) {
   const { messages, isSending, error, sendMessage } = useChat(gemId);
   const [draft, setDraft] = useState('');
+
+  useEffect(() => {
+    void analyticsApi.capture({
+      eventType: 'stop_chat_opened',
+      poiId: gemId,
+      theme,
+    }).catch(() => undefined);
+  }, [gemId, theme]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();

@@ -155,7 +155,7 @@ export function GemDetailDrawer() {
 
           <hr style={{ margin: '1rem 0', border: 'none', borderTop: '1px solid #eee' }} />
 
-          <ChatPanel gemId={gem.id} title={gem.title} />
+          <ChatPanel gemId={gem.id} title={gem.title} theme={gem.theme} />
         </>
       )}
     </div>

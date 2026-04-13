@@ -19,6 +19,7 @@
   margin: 0;
   font-size: 1.25rem;
   text-align: left;
+  color: white;
 }
 
 .map-page__content {
@@ -53,5 +54,360 @@
 
   .map-page__main {
     min-height: 60vh;
+  }
+}
+
+.admin-login-page,
+.admin-dashboard-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top right, rgba(20, 184, 166, 0.18), transparent 30%),
+    linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+  color: #0f172a;
+}
+
+.admin-login-page {
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+}
+
+.admin-login-card,
+.admin-state-card,
+.admin-chart-card,
+.admin-kpi-card {
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(10px);
+}
+
+.admin-login-card {
+  width: min(100%, 440px);
+  padding: 2rem;
+}
+
+.admin-eyebrow,
+.admin-chart-eyebrow,
+.admin-state-kicker {
+  margin: 0 0 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #0f766e;
+}
+
+.admin-login-title,
+.admin-dashboard-title,
+.admin-state-title,
+.admin-chart-title {
+  margin: 0;
+  color: #0f172a;
+}
+
+.admin-login-title {
+  font-size: 2rem;
+}
+
+.admin-dashboard-title {
+  font-size: 2.25rem;
+}
+
+.admin-login-copy,
+.admin-dashboard-copy,
+.admin-state-copy,
+.admin-chart-subtitle {
+  margin: 0;
+  color: #475569;
+}
+
+.admin-login-form {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.admin-field {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.admin-field__label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+.admin-input,
+.admin-select {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 0.85rem 0.95rem;
+  font: inherit;
+  color: #0f172a;
+  background: white;
+}
+
+.admin-primary-button,
+.admin-secondary-button {
+  border-radius: 12px;
+  padding: 0.85rem 1.1rem;
+  font: inherit;
+  font-weight: 700;
+}
+
+.admin-primary-button {
+  background: linear-gradient(135deg, #0f766e 0%, #1d4ed8 100%);
+  color: white;
+}
+
+.admin-primary-button:disabled,
+.admin-secondary-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.admin-secondary-button {
+  background: white;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+.admin-inline-error {
+  margin: 0;
+  color: #b91c1c;
+  font-size: 0.9rem;
+}
+
+.admin-dashboard-page {
+  padding: 2rem;
+}
+
+.admin-dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-filters {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.admin-dashboard-grid__full,
+.admin-kpi-grid {
+  grid-column: 1 / -1;
+}
+
+.admin-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.admin-kpi-card {
+  padding: 1.15rem;
+}
+
+.admin-kpi-label {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #475569;
+}
+
+.admin-kpi-value {
+  margin: 0.4rem 0 0;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.admin-chart-card,
+.admin-state-card {
+  padding: 1.4rem;
+}
+
+.admin-chart-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.admin-chart-legend {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  color: #475569;
+  font-size: 0.85rem;
+}
+
+.admin-chart-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.admin-chart-legend__swatch {
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 999px;
+}
+
+.admin-chart-legend__swatch--blue {
+  background: #2563eb;
+}
+
+.admin-chart-legend__swatch--green {
+  background: #0f766e;
+}
+
+.admin-timeseries-chart {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.admin-chart-axis {
+  stroke: #94a3b8;
+  stroke-width: 1.2;
+}
+
+.admin-chart-grid {
+  stroke: rgba(148, 163, 184, 0.3);
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+}
+
+.admin-chart-label {
+  fill: #64748b;
+  font-size: 12px;
+}
+
+.admin-chart-line {
+  stroke-width: 4;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.admin-chart-line--blue {
+  stroke: #2563eb;
+}
+
+.admin-chart-line--green {
+  stroke: #0f766e;
+}
+
+.admin-breakdown-list {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.admin-breakdown-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(180px, 1fr) auto;
+  gap: 0.9rem;
+  align-items: center;
+}
+
+.admin-breakdown-row__meta {
+  min-width: 0;
+}
+
+.admin-breakdown-row__label,
+.admin-breakdown-row__detail,
+.admin-breakdown-row__value {
+  margin: 0;
+}
+
+.admin-breakdown-row__label {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.admin-breakdown-row__detail {
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.admin-breakdown-row__bar-shell {
+  height: 0.8rem;
+  border-radius: 999px;
+  background: #e2e8f0;
+  overflow: hidden;
+}
+
+.admin-breakdown-row__bar-fill {
+  height: 100%;
+  min-width: 0.8rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #0f766e 0%, #1d4ed8 100%);
+}
+
+.admin-breakdown-row__value {
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.admin-empty-meta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.25rem 0 0;
+}
+
+.admin-empty-meta dt {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.admin-empty-meta dd {
+  margin: 0.2rem 0 0;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+@media (max-width: 1100px) {
+  .admin-filters,
+  .admin-kpi-grid,
+  .admin-dashboard-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .admin-dashboard-page {
+    padding: 1rem;
+  }
+
+  .admin-dashboard-header,
+  .admin-chart-card__header {
+    flex-direction: column;
+  }
+
+  .admin-filters,
+  .admin-kpi-grid,
+  .admin-dashboard-grid,
+  .admin-empty-meta {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-breakdown-row {
+    grid-template-columns: 1fr;
   }
 }

@@ -85,6 +85,47 @@ Index:
 
 - `CREATE INDEX idx_route_logs_created_at ON route_logs(created_at);`
 
+#### `analytics_events` — dedicated analytics storage (post-MVP admin portal v1)
+
+Doel: analytics-events centraal opslaan voor read-only admin portal queries, gescheiden van chatcontent.
+
+- `id` UUID PRIMARY KEY DEFAULT `gen_random_uuid()`
+- `occurred_at` TIMESTAMP NOT NULL DEFAULT NOW()
+- `event_type` TEXT NOT NULL
+- `route_id` UUID
+- `poi_id` UUID REFERENCES gems(id) ON DELETE SET NULL
+- `stop_number` INTEGER
+- `theme` TEXT
+- `result_status` TEXT
+- `source` TEXT CHECK (source IN ('backend','frontend'))
+- `metadata` JSONB
+
+Constraints / guardrails:
+
+- `event_type` is beperkt tot analytics-events uit FR-17:
+  - `route_generated`
+  - `route_generation_failed`
+  - `route_started`
+  - `poi_detail_opened`
+  - `filter_applied`
+  - `story_generated`
+  - `stop_chat_opened`
+  - `stop_chat_sent`
+- `metadata` is nullable maar bevat enkel safe non-PII analytics-velden.
+- Geen chat message bodies.
+- Geen AI-antwoorden.
+- Geen request bodies.
+- Geen directe PII.
+
+Aanbevolen indexen:
+
+- `CREATE INDEX idx_analytics_events_occurred_at ON analytics_events(occurred_at);`
+- `CREATE INDEX idx_analytics_events_event_type ON analytics_events(event_type);`
+- `CREATE INDEX idx_analytics_events_theme ON analytics_events(theme);`
+- `CREATE INDEX idx_analytics_events_poi_id ON analytics_events(poi_id);`
+- `CREATE INDEX idx_analytics_events_route_id ON analytics_events(route_id);`
+- `CREATE INDEX idx_analytics_events_event_type_occurred_at ON analytics_events(event_type, occurred_at);`
+
 ### ETL / Sanitisatie
 
 - Sanitisatie en mapping gebeuren via scripts in het backend-ecosysteem (Node.js/TypeScript), in lijn met `docs/mcd.md`.
@@ -99,5 +140,6 @@ Index:
 ### Privacy constraint (link met NFR-S2)
 
 - **Geen chat logs** in DB.
-- Alleen `datasets`, `gems`, `gem_stories` en optioneel `route_logs` worden opgeslagen.
+- Alleen `datasets`, `gems`, `gem_stories`, optioneel `route_logs` en dedicated `analytics_events` worden opgeslagen.
 - Chatinput/-output blijft stateless en wordt niet persistenter opgeslagen.
+- `analytics_events` bevat geen chat bodies, geen AI-antwoorden, geen request bodies en geen directe PII.

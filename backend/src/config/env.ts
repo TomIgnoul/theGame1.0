@@ -10,6 +10,7 @@ export function loadEnv() {
   return {
     DATABASE_URL: getEnv('DATABASE_URL'),
     ADMIN_API_KEY: getEnv('ADMIN_API_KEY'),
+    ADMIN_PORTAL_PASSPHRASE: getEnv('ADMIN_PORTAL_PASSPHRASE'),
     PORT: Number(process.env.PORT) || 8080,
     AI_PROVIDER: process.env.AI_PROVIDER ?? 'ollama',
     OLLAMA_BASE_URL: process.env.OLLAMA_BASE_URL ?? 'http://localhost:11434',
