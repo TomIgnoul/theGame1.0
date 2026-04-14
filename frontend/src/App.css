@@ -112,7 +112,7 @@
 }
 
 .admin-dashboard-title {
-  font-size: 2.25rem;
+  font-size: 2rem;
 }
 
 .admin-login-copy,
@@ -184,43 +184,62 @@
 }
 
 .admin-dashboard-page {
-  padding: 2rem;
+  box-sizing: border-box;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1.75rem 2rem 2.25rem;
 }
 
 .admin-dashboard-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.admin-dashboard-copy {
+  max-width: 62ch;
+  margin-top: 0.5rem;
 }
 
 .admin-filters {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  gap: 0.9rem;
+  margin-bottom: 1.25rem;
 }
 
 .admin-dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.25rem;
-}
-
-.admin-dashboard-grid__full,
-.admin-kpi-grid {
-  grid-column: 1 / -1;
+  gap: 1rem;
 }
 
 .admin-kpi-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.admin-dashboard-analytics-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(300px, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.admin-dashboard-grid__timeseries,
+.admin-dashboard-grid__breakdowns {
+  min-width: 0;
+}
+
+.admin-dashboard-grid__breakdowns {
+  display: grid;
   gap: 1rem;
 }
 
 .admin-kpi-card {
-  padding: 1.15rem;
+  padding: 1rem;
 }
 
 .admin-kpi-label {
@@ -231,14 +250,14 @@
 
 .admin-kpi-value {
   margin: 0.4rem 0 0;
-  font-size: 2rem;
+  font-size: 1.75rem;
   font-weight: 800;
   color: #0f172a;
 }
 
 .admin-chart-card,
 .admin-state-card {
-  padding: 1.4rem;
+  padding: 1.2rem;
 }
 
 .admin-chart-card__header {
@@ -246,7 +265,20 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: 1rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.admin-chart-title {
+  font-size: 1.2rem;
+}
+
+.admin-chart-subtitle {
+  max-width: 28ch;
+  font-size: 0.9rem;
+}
+
+.admin-chart-card--timeseries .admin-chart-card__header {
+  margin-bottom: 0.7rem;
 }
 
 .admin-chart-legend {
@@ -278,7 +310,9 @@
 }
 
 .admin-timeseries-chart {
-  width: 100%;
+  display: block;
+  width: min(100%, 620px);
+  margin-inline: auto;
   height: auto;
   overflow: visible;
 }
@@ -300,7 +334,7 @@
 }
 
 .admin-chart-line {
-  stroke-width: 4;
+  stroke-width: 3;
   stroke-linejoin: round;
   stroke-linecap: round;
 }
@@ -315,13 +349,13 @@
 
 .admin-breakdown-list {
   display: grid;
-  gap: 0.85rem;
+  gap: 0.75rem;
 }
 
 .admin-breakdown-row {
   display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(180px, 1fr) auto;
-  gap: 0.9rem;
+  grid-template-columns: minmax(0, 1.35fr) minmax(140px, 1fr) auto;
+  gap: 0.75rem;
   align-items: center;
 }
 
@@ -346,7 +380,7 @@
 }
 
 .admin-breakdown-row__bar-shell {
-  height: 0.8rem;
+  height: 0.7rem;
   border-radius: 999px;
   background: #e2e8f0;
   overflow: hidden;
@@ -383,16 +417,31 @@
 }
 
 @media (max-width: 1100px) {
+  .admin-dashboard-page {
+    padding: 1.5rem;
+  }
+
   .admin-filters,
-  .admin-kpi-grid,
-  .admin-dashboard-grid {
+  .admin-kpi-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-dashboard-analytics-row {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-timeseries-chart {
+    width: min(100%, 680px);
   }
 }
 
 @media (max-width: 720px) {
   .admin-dashboard-page {
     padding: 1rem;
+  }
+
+  .admin-dashboard-title {
+    font-size: 1.75rem;
   }
 
   .admin-dashboard-header,
@@ -402,7 +451,7 @@
 
   .admin-filters,
   .admin-kpi-grid,
-  .admin-dashboard-grid,
+  .admin-dashboard-analytics-row,
   .admin-empty-meta {
     grid-template-columns: 1fr;
   }

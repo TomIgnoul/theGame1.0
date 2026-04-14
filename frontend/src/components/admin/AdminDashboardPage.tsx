@@ -110,21 +110,25 @@ export function AdminDashboardPage({
           <div className="admin-dashboard-grid">
             <AnalyticsKpiCards overview={overview} />
 
-            <div className="admin-dashboard-grid__full">
-              <AnalyticsTimeseriesChart buckets={timeseries.buckets} />
+            <div className="admin-dashboard-analytics-row">
+              <div className="admin-dashboard-grid__timeseries">
+                <AnalyticsTimeseriesChart buckets={timeseries.buckets} />
+              </div>
+
+              <div className="admin-dashboard-grid__breakdowns">
+                <AnalyticsBreakdownChart
+                  title="Theme breakdown"
+                  subtitle="Total analytics events by theme"
+                  rows={toThemeChartRows(breakdowns.themeBreakdown)}
+                />
+
+                <AnalyticsBreakdownChart
+                  title="POI breakdown"
+                  subtitle="Most active POIs across detail, story, and chat events"
+                  rows={toPoiChartRows(breakdowns.poiBreakdown)}
+                />
+              </div>
             </div>
-
-            <AnalyticsBreakdownChart
-              title="Theme breakdown"
-              subtitle="Total analytics events by theme"
-              rows={toThemeChartRows(breakdowns.themeBreakdown)}
-            />
-
-            <AnalyticsBreakdownChart
-              title="POI breakdown"
-              subtitle="Most active POIs across detail, story, and chat events"
-              rows={toPoiChartRows(breakdowns.poiBreakdown)}
-            />
           </div>
         )}
     </main>

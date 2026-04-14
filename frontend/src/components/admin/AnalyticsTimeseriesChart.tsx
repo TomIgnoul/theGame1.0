@@ -12,11 +12,11 @@ interface AnalyticsTimeseriesChartProps {
   buckets: AdminTimeseriesBucket[];
 }
 
-const CHART_WIDTH = 720;
-const CHART_HEIGHT = 220;
-const PADDING_X = 40;
-const PADDING_TOP = 20;
-const PADDING_BOTTOM = 32;
+const CHART_WIDTH = 680;
+const CHART_HEIGHT = 200;
+const PADDING_X = 36;
+const PADDING_TOP = 16;
+const PADDING_BOTTOM = 30;
 
 export function AnalyticsTimeseriesChart({
   buckets,
@@ -51,7 +51,7 @@ export function AnalyticsTimeseriesChart({
     .join(' ');
 
   return (
-    <section className="admin-chart-card">
+    <section className="admin-chart-card admin-chart-card--timeseries">
       <div className="admin-chart-card__header">
         <div>
           <p className="admin-chart-eyebrow">Timeseries</p>
