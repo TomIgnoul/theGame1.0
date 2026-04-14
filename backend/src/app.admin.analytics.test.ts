@@ -486,3 +486,30 @@ test('admin analytics endpoints validate theme filters', async () => {
     });
   });
 });
+
+test('admin analytics overview returns unavailable when analytics storage is missing', async () => {
+  await withAdminAuthEnv(async () => {
+    await withTestServer(
+      {
+        getAnalyticsOverview: async () => {
+          throw new Error('relation "analytics_events" does not exist');
+        },
+      },
+      async (baseUrl) => {
+        const adminCookie = await loginAsAdmin(baseUrl);
+
+        const response = await getJson(
+          baseUrl,
+          '/api/admin/analytics/overview?from=2026-04-01&to=2026-04-07',
+          adminCookie,
+        );
+
+        assert.equal(response.status, 500);
+        assert.deepEqual(await response.json(), {
+          error: 'Analytics overview is unavailable',
+          code: 'analytics_overview_unavailable',
+        });
+      },
+    );
+  });
+});
