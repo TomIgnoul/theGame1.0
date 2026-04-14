@@ -1,5 +1,44 @@
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
+type FrontendAnalyticsEventPayload =
+  | {
+      eventType: 'filter_applied';
+      theme: string;
+    }
+  | {
+      eventType: 'route_started';
+      theme: string;
+      metadata?: {
+        shape?: 'loop' | 'a_to_b';
+        kmTarget?: number;
+        kmResult?: number;
+        gemCount?: number;
+      };
+    }
+  | {
+      eventType: 'stop_chat_opened';
+      poiId: string;
+      theme?: string;
+    };
+
+type AdminAnalyticsFilters = import('../features/admin/types').AdminAnalyticsFilters;
+
+export class ApiError extends Error {
+  status: number;
+  code?: string;
+
+  constructor(
+    message: string,
+    status: number,
+    code?: string,
+  ) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.code = code;
+  }
+}
+
 export async function api<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     ...options,
@@ -10,9 +49,27 @@ export async function api<T>(path: string, options?: RequestInit): Promise<T> {
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error((err as { error?: string }).error || res.statusText);
+    const payload = err as { error?: string; code?: string };
+    throw new ApiError(
+      payload.error || res.statusText,
+      res.status,
+      payload.code,
+    );
   }
   return res.json() as Promise<T>;
+}
+
+function buildAdminAnalyticsQuery(filters: AdminAnalyticsFilters) {
+  const params = new URLSearchParams({
+    from: filters.from,
+    to: filters.to,
+  });
+
+  if (filters.theme) {
+    params.set('theme', filters.theme);
+  }
+
+  return params.toString();
 }
 
 export const gemsApi = {
@@ -52,4 +109,48 @@ export const chatApi = {
       method: 'POST',
       body: JSON.stringify(payload),
     }),
+};
+
+export const analyticsApi = {
+  capture: (payload: FrontendAnalyticsEventPayload) =>
+    api<{ accepted: boolean }>('/api/analytics/events', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+};
+
+export const adminApi = {
+  login: (passphrase: string) =>
+    api<{ ok: boolean }>('/api/admin/auth/login', {
+      method: 'POST',
+      credentials: 'include',
+      body: JSON.stringify({ passphrase }),
+    }),
+  logout: () =>
+    api<{ ok: boolean }>('/api/admin/auth/logout', {
+      method: 'POST',
+      credentials: 'include',
+      body: JSON.stringify({}),
+    }),
+  overview: (filters: AdminAnalyticsFilters) =>
+    api<import('../features/admin/types').AdminOverviewResponse>(
+      `/api/admin/analytics/overview?${buildAdminAnalyticsQuery(filters)}`,
+      {
+        credentials: 'include',
+      },
+    ),
+  timeseries: (filters: AdminAnalyticsFilters) =>
+    api<import('../features/admin/types').AdminTimeseriesResponse>(
+      `/api/admin/analytics/timeseries?${buildAdminAnalyticsQuery(filters)}`,
+      {
+        credentials: 'include',
+      },
+    ),
+  breakdowns: (filters: AdminAnalyticsFilters) =>
+    api<import('../features/admin/types').AdminBreakdownsResponse>(
+      `/api/admin/analytics/breakdowns?${buildAdminAnalyticsQuery(filters)}`,
+      {
+        credentials: 'include',
+      },
+    ),
 };

@@ -96,6 +96,7 @@ Decision ID(s):
 - [ ] `npm run build`
 - [ ] Backend tests added or updated (if test suite exists)
 - [ ] Frontend tests added or updated (if test suite exists)
+- [ ] Test case IDs listed below and mapped to touched FR / NFR / GH rows
 - [ ] Coverage checked (if tooling exists)
 
 ### Manual
@@ -111,6 +112,8 @@ npm run build
 ```
 
 Test case ID(s) / evidence:
+
+Use IDs from `docs/traceability.md` when available (example: `TC-AN-API-01`).
 
 Manual validation notes:
 

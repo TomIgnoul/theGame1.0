@@ -6,6 +6,7 @@
 2. Set required variables:
    - `DATABASE_URL` — PostgreSQL connection string
    - `ADMIN_API_KEY` — Secret for admin sync (POST /api/admin/datasets/sync)
+   - `ADMIN_PORTAL_PASSPHRASE` — Shared passphrase for `POST /api/admin/auth/login` and the signed admin session cookie
    - `GOOGLE_ROUTES_API_KEY` or `GOOGLE_MAPS_API_KEY` — For route computation (Directions API)
    - `AI_PROVIDER=ollama` — Default local AI runtime selector for POI story + POI chat
    - `OLLAMA_BASE_URL=http://localhost:11434` — Ollama base URL; remote endpoints with or without `/api` are accepted
@@ -25,7 +26,11 @@
 4. Pull the default model once: `ollama pull llama3.2`
 5. Run migrations: `npm run db:migrate`
 6. Sync datasets (once): `curl -X POST http://localhost:8080/api/admin/datasets/sync -H "x-admin-key: YOUR_KEY"`
-7. Start dev: `npm run dev` (runs backend + frontend)
+7. Log into the admin analytics API:
+   - `curl -i -X POST http://localhost:8080/api/admin/auth/login -H "Content-Type: application/json" -d '{"passphrase":"YOUR_ADMIN_PORTAL_PASSPHRASE"}'`
+8. Fetch admin analytics with the returned cookie:
+   - `curl http://localhost:8080/api/admin/analytics/overview?from=2026-04-01&to=2026-04-07 --cookie "thegame_admin_session=..."`
+9. Start dev: `npm run dev` (runs backend + frontend)
 
 ## Local AI verification
 

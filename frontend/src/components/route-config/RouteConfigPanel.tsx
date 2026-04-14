@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useRouteStore } from '../../store/routeStore';
 import { ALLOWED_THEMES } from '../../constants';
+import { analyticsApi, routesApi } from '../../api/client';
 
 const THEMES = [...ALLOWED_THEMES];
 
@@ -8,6 +9,7 @@ export function RouteConfigPanel() {
   const { theme, kmTarget, shape, start, end, mapClickMode, routeResult, setTheme, setKmTarget, setShape, setStart, setRouteResult, setMapClickMode } = useRouteStore();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [walkStarted, setWalkStarted] = useState(false);
 
   const focusMap = () => {
     document.getElementById('route-map')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -23,9 +25,9 @@ export function RouteConfigPanel() {
       return;
     }
     setError(null);
+    setWalkStarted(false);
     setLoading(true);
     try {
-      const { routesApi } = await import('../../api/client');
       const result = await routesApi.generate({
         theme,
         kmTarget,
@@ -41,6 +43,32 @@ export function RouteConfigPanel() {
     }
   };
 
+  const handleThemeChange = async (nextTheme: string) => {
+    setTheme(nextTheme);
+    void analyticsApi.capture({
+      eventType: 'filter_applied',
+      theme: nextTheme,
+    }).catch(() => undefined);
+  };
+
+  const handleStartWalk = async () => {
+    if (!routeResult || walkStarted) {
+      return;
+    }
+
+    setWalkStarted(true);
+    void analyticsApi.capture({
+      eventType: 'route_started',
+      theme,
+      metadata: {
+        shape: routeResult.shape,
+        kmTarget: routeResult.kmTarget,
+        kmResult: routeResult.kmResult,
+        gemCount: routeResult.gems.length,
+      },
+    }).catch(() => undefined);
+  };
+
   return (
     <div>
       <h2 style={{ marginTop: 0, fontSize: '1rem' }}>Route config</h2>
@@ -51,7 +79,9 @@ export function RouteConfigPanel() {
         </label>
         <select
           value={theme}
-          onChange={(e) => setTheme(e.target.value)}
+          onChange={(e) => {
+            void handleThemeChange(e.target.value);
+          }}
           style={{ width: '100%', padding: '0.5rem' }}
         >
           {THEMES.map((t) => (
@@ -171,6 +201,25 @@ export function RouteConfigPanel() {
           <p style={{ margin: '0.25rem 0 0', fontSize: '0.875rem', color: '#166534' }}>
             {routeResult.gems.length} gems
           </p>
+          <button
+            type="button"
+            onClick={() => {
+              void handleStartWalk();
+            }}
+            disabled={walkStarted}
+            style={{
+              marginTop: '0.75rem',
+              width: '100%',
+              padding: '0.6rem 0.75rem',
+              background: walkStarted ? '#94a3b8' : '#0f766e',
+              color: 'white',
+              border: 'none',
+              borderRadius: 4,
+              cursor: walkStarted ? 'not-allowed' : 'pointer',
+            }}
+          >
+            {walkStarted ? 'Walk started' : 'Start walk'}
+          </button>
           {routeResult.warnings.length > 0 && (
             <p style={{ margin: '0.25rem 0 0', fontSize: '0.75rem', color: '#854d0e' }}>
               {routeResult.warnings.join('; ')}

@@ -6,10 +6,15 @@ function getEnv(name: string): string {
   return value;
 }
 
+function getOptionalEnv(name: string): string {
+  return process.env[name] ?? '';
+}
+
 export function loadEnv() {
   return {
     DATABASE_URL: getEnv('DATABASE_URL'),
-    ADMIN_API_KEY: getEnv('ADMIN_API_KEY'),
+    ADMIN_API_KEY: getOptionalEnv('ADMIN_API_KEY'),
+    ADMIN_PORTAL_PASSPHRASE: getOptionalEnv('ADMIN_PORTAL_PASSPHRASE'),
     PORT: Number(process.env.PORT) || 8080,
     AI_PROVIDER: process.env.AI_PROVIDER ?? 'ollama',
     OLLAMA_BASE_URL: process.env.OLLAMA_BASE_URL ?? 'http://localhost:11434',
