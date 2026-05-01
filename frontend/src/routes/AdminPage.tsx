@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   useMutation,
   useQuery,
@@ -29,26 +29,24 @@ export function AdminPage() {
   const [sessionState, setSessionState] =
     useState<AdminSessionState>('checking');
 
-  const adminQueryEnabled = sessionState !== 'unauthorized';
-
   const overviewQuery = useQuery({
     queryKey: ['admin', 'overview', filters.from, filters.to, filters.theme],
     queryFn: () => adminApi.overview(filters),
-    enabled: adminQueryEnabled,
+    enabled: sessionState !== 'unauthorized',
     retry: false,
   });
 
   const timeseriesQuery = useQuery({
     queryKey: ['admin', 'timeseries', filters.from, filters.to, filters.theme],
     queryFn: () => adminApi.timeseries(filters),
-    enabled: adminQueryEnabled,
+    enabled: sessionState !== 'unauthorized',
     retry: false,
   });
 
   const breakdownsQuery = useQuery({
     queryKey: ['admin', 'breakdowns', filters.from, filters.to, filters.theme],
     queryFn: () => adminApi.breakdowns(filters),
-    enabled: adminQueryEnabled,
+    enabled: sessionState !== 'unauthorized',
     retry: false,
   });
 
@@ -90,16 +88,11 @@ export function AdminPage() {
     return query.isError && !isUnauthorizedApiError(query.error);
   });
 
-  useEffect(() => {
-    if (hasUnauthorizedError) {
-      setSessionState('unauthorized');
-      return;
-    }
-
-    if (hasNonUnauthorizedSettledState) {
-      setSessionState('authenticated');
-    }
-  }, [hasNonUnauthorizedSettledState, hasUnauthorizedError]);
+  const resolvedSessionState: AdminSessionState = hasUnauthorizedError
+    ? 'unauthorized'
+    : hasNonUnauthorizedSettledState || sessionState === 'authenticated'
+      ? 'authenticated'
+      : sessionState;
 
   const analyticsError =
     firstNonUnauthorizedError([
@@ -108,7 +101,7 @@ export function AdminPage() {
       breakdownsQuery,
     ]) ?? null;
 
-  if (sessionState === 'unauthorized' || hasUnauthorizedError) {
+  if (resolvedSessionState === 'unauthorized') {
     return (
       <AdminLoginPage
         isSubmitting={loginMutation.isPending}

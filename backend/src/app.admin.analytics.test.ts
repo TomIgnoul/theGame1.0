@@ -49,10 +49,9 @@ async function withAdminAuthEnv(run: () => Promise<void>) {
   } finally {
     if (previousPassphrase === undefined) {
       delete process.env.ADMIN_PORTAL_PASSPHRASE;
-      return;
+    } else {
+      process.env.ADMIN_PORTAL_PASSPHRASE = previousPassphrase;
     }
-
-    process.env.ADMIN_PORTAL_PASSPHRASE = previousPassphrase;
   }
 }
 
