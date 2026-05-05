@@ -8,6 +8,14 @@ export const ALLOWED_THEMES = [
   'Architecture',
 ] as const;
 
+export const ADD_PEARL_ALLOWED_THEMES = [
+  'War',
+  'Museum',
+  'Streetart',
+  'Food',
+  'Culture',
+] as const;
+
 export const DEFAULT_MAP_CENTER = { lat: 50.8467, lng: 4.3525 }; // Grand Place
 export const KM_MIN = 1;
 export const KM_MAX = 15;

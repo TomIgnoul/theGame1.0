@@ -33,6 +33,13 @@ describe('AdminPage', () => {
       }),
     ).toBeTruthy();
     expect(
+      screen
+        .getByRole('link', {
+          name: 'Add Pearl',
+        })
+        .getAttribute('href'),
+    ).toBe('/admin/pearls/new');
+    expect(
       screen.getByRole('heading', {
         name: 'Theme breakdown',
       }),

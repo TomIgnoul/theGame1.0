@@ -75,7 +75,9 @@
 .admin-login-card,
 .admin-state-card,
 .admin-chart-card,
-.admin-kpi-card {
+.admin-kpi-card,
+.admin-form-card,
+.admin-pearl-owner-panel {
   border: 1px solid rgba(148, 163, 184, 0.25);
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.88);
@@ -141,7 +143,8 @@
 }
 
 .admin-input,
-.admin-select {
+.admin-select,
+.admin-textarea {
   width: 100%;
   box-sizing: border-box;
   border: 1px solid #cbd5e1;
@@ -150,6 +153,11 @@
   font: inherit;
   color: #0f172a;
   background: white;
+}
+
+.admin-textarea {
+  resize: vertical;
+  min-height: 8rem;
 }
 
 .admin-primary-button,
@@ -177,6 +185,19 @@
   border-color: #cbd5e1;
 }
 
+.admin-secondary-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 0.85rem 1.1rem;
+  background: white;
+  color: #0f172a;
+  font-weight: 700;
+  text-decoration: none;
+}
+
 .admin-inline-error {
   margin: 0;
   color: #b91c1c;
@@ -196,6 +217,14 @@
   align-items: flex-start;
   gap: 1.25rem;
   margin-bottom: 1.25rem;
+}
+
+.admin-dashboard-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .admin-dashboard-copy {
@@ -258,6 +287,10 @@
 .admin-chart-card,
 .admin-state-card {
   padding: 1.2rem;
+}
+
+.admin-state-card--compact {
+  padding: 1rem;
 }
 
 .admin-chart-card__header {
@@ -416,6 +449,64 @@
   color: #0f172a;
 }
 
+.admin-pearl-page {
+  max-width: 920px;
+}
+
+.admin-pearl-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-form-card,
+.admin-pearl-owner-panel,
+.admin-pearl-success-card {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+}
+
+.admin-pearl-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.admin-form-section-title {
+  margin: 0;
+  font-size: 1.15rem;
+  color: #0f172a;
+}
+
+.admin-form-section-copy {
+  margin: 0.25rem 0 0;
+  color: #475569;
+}
+
+.admin-owner-create-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.85rem;
+  align-items: end;
+}
+
+.admin-owner-create-row__input {
+  min-width: 0;
+}
+
+.admin-owner-create-row__button {
+  min-height: 3rem;
+}
+
+.admin-pearl-submit {
+  justify-self: start;
+}
+
+.admin-pearl-success-card {
+  max-width: 620px;
+  margin: 4rem auto 0;
+}
+
 @media (max-width: 1100px) {
   .admin-dashboard-page {
     padding: 1.5rem;
@@ -452,7 +543,9 @@
   .admin-filters,
   .admin-kpi-grid,
   .admin-dashboard-analytics-row,
-  .admin-empty-meta {
+  .admin-empty-meta,
+  .admin-pearl-form-grid,
+  .admin-owner-create-row {
     grid-template-columns: 1fr;
   }
 
