@@ -18,6 +18,7 @@ const sync_service_1 = require("./modules/admin/sync.service");
 const service_1 = require("./modules/analytics/service");
 const read_service_1 = require("./modules/analytics/read.service");
 const auth_1 = require("./modules/admin/auth");
+const pearls_service_1 = require("./modules/admin/pearls.service");
 const aiRuntime_1 = require("./modules/ai/aiRuntime");
 const defaultDependencies = {
     pingDb: db_1.ping,
@@ -34,6 +35,9 @@ const defaultDependencies = {
     getAnalyticsOverview: read_service_1.getAnalyticsOverview,
     getAnalyticsTimeseries: read_service_1.getAnalyticsTimeseries,
     getAnalyticsBreakdowns: read_service_1.getAnalyticsBreakdowns,
+    listPearlOwners: pearls_service_1.listPearlOwners,
+    createPearlOwner: pearls_service_1.createPearlOwner,
+    createAdminPearl: pearls_service_1.createAdminPearl,
 };
 function createApp(overrides = {}) {
     const deps = { ...defaultDependencies, ...overrides };
@@ -337,7 +341,7 @@ function createApp(overrides = {}) {
     // GH-AN-02 / GH-AN-03 / GH-AN-04 for read-only analytics KPI cards.
     app.get('/api/admin/analytics/overview', async (req, res) => {
         applyAdminNoStore(res);
-        if (!requireAdminAnalyticsSession(req, res)) {
+        if (!requireAdminSession(req, res)) {
             return;
         }
         const parsed = (0, read_service_1.parseAnalyticsReadFilters)(req.query);
@@ -364,7 +368,7 @@ function createApp(overrides = {}) {
     // GH-AN-02 / GH-AN-03 / GH-AN-04 for read-only analytics graphs.
     app.get('/api/admin/analytics/timeseries', async (req, res) => {
         applyAdminNoStore(res);
-        if (!requireAdminAnalyticsSession(req, res)) {
+        if (!requireAdminSession(req, res)) {
             return;
         }
         const parsed = (0, read_service_1.parseAnalyticsReadFilters)(req.query);
@@ -392,7 +396,7 @@ function createApp(overrides = {}) {
     // empty-state-friendly responses.
     app.get('/api/admin/analytics/breakdowns', async (req, res) => {
         applyAdminNoStore(res);
-        if (!requireAdminAnalyticsSession(req, res)) {
+        if (!requireAdminSession(req, res)) {
             return;
         }
         const parsed = (0, read_service_1.parseAnalyticsReadFilters)(req.query);
@@ -412,6 +416,95 @@ function createApp(overrides = {}) {
             res.status(500).json({
                 error: 'Analytics breakdowns are unavailable',
                 code: 'analytics_breakdowns_unavailable',
+            });
+        }
+    });
+    // Implements FR-27 / FR-30 / NFR-S7 and covers GH-PRL-02 / GH-PRL-05 for
+    // admin-only PearlOwner lookup.
+    app.get('/api/admin/pearl-owners', async (req, res) => {
+        applyAdminNoStore(res);
+        if (!requireAdminSession(req, res)) {
+            return;
+        }
+        const query = typeof req.query.query === 'string' ? req.query.query : undefined;
+        try {
+            const owners = await deps.listPearlOwners(query);
+            res.json({ items: owners });
+        }
+        catch (err) {
+            console.error(err);
+            res.status(500).json({
+                error: 'PearlOwner lookup is unavailable',
+                code: 'pearl_owner_lookup_unavailable',
+            });
+        }
+    });
+    // Implements FR-30 / NFR-S7 and covers GH-PRL-02 / GH-PRL-05 for admin-only
+    // PearlOwner creation.
+    app.post('/api/admin/pearl-owners', async (req, res) => {
+        applyAdminNoStore(res);
+        if (!requireAdminSession(req, res)) {
+            return;
+        }
+        const parsed = (0, pearls_service_1.parseCreatePearlOwnerInput)(req.body);
+        if (!parsed.ok) {
+            res.status(400).json({
+                error: parsed.error,
+                code: parsed.code,
+            });
+            return;
+        }
+        try {
+            const owner = await deps.createPearlOwner(parsed.value);
+            res.status(201).json(owner);
+        }
+        catch (err) {
+            if (err instanceof pearls_service_1.AdminPearlServiceError) {
+                res.status(err.status).json({
+                    error: err.message,
+                    code: err.code,
+                });
+                return;
+            }
+            console.error(err);
+            res.status(500).json({
+                error: 'PearlOwner create is unavailable',
+                code: 'pearl_owner_create_unavailable',
+            });
+        }
+    });
+    // Implements FR-27 / FR-28 / FR-29 / FR-30 / FR-31 / NFR-S7 and covers
+    // GH-PRL-01 / GH-PRL-03 / GH-PRL-04 / GH-PRL-05 for the backend Add Pearl
+    // foundation. Frontend UI remains out of scope for this prompt.
+    app.post('/api/admin/pearls', async (req, res) => {
+        applyAdminNoStore(res);
+        if (!requireAdminSession(req, res)) {
+            return;
+        }
+        const parsed = (0, pearls_service_1.parseCreatePearlInput)(req.body);
+        if (!parsed.ok) {
+            res.status(400).json({
+                error: parsed.error,
+                code: parsed.code,
+            });
+            return;
+        }
+        try {
+            const pearl = await deps.createAdminPearl(parsed.value);
+            res.status(201).json(pearl);
+        }
+        catch (err) {
+            if (err instanceof pearls_service_1.AdminPearlServiceError) {
+                res.status(err.status).json({
+                    error: err.message,
+                    code: err.code,
+                });
+                return;
+            }
+            console.error(err);
+            res.status(500).json({
+                error: 'Pearl create is unavailable',
+                code: 'pearl_create_unavailable',
             });
         }
     });
@@ -457,7 +550,7 @@ function queueAnalyticsEvent(recordEvent, event) {
 function applyAdminNoStore(res) {
     res.setHeader('Cache-Control', 'no-store');
 }
-function requireAdminAnalyticsSession(req, res) {
+function requireAdminSession(req, res) {
     if ((0, auth_1.hasValidAdminSession)(req)) {
         return true;
     }

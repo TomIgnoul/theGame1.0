@@ -12,11 +12,23 @@ CREATE TABLE datasets (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
--- 2) Gems (project-owned normalized records)
+-- 2) PearlOwner records for manually added Pearls
+CREATE TABLE pearl_owners (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE (name)
+);
+
+CREATE INDEX idx_pearl_owners_name ON pearl_owners(name);
+
+-- 3) Gems (project-owned normalized records)
 CREATE TABLE gems (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   dataset_id UUID REFERENCES datasets(id),
   external_id TEXT,
+  pearl_owner_id UUID REFERENCES pearl_owners(id),
   title TEXT NOT NULL,
   theme TEXT NOT NULL,
   description_short TEXT,
@@ -28,13 +40,16 @@ CREATE TABLE gems (
   is_active BOOLEAN NOT NULL DEFAULT TRUE,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW(),
+  CONSTRAINT gems_manual_requires_pearl_owner
+    CHECK (source_type <> 'manual' OR pearl_owner_id IS NOT NULL),
   UNIQUE (dataset_id, external_id)
 );
 
 CREATE INDEX idx_gems_theme ON gems(theme);
 CREATE INDEX idx_gems_lat_lng ON gems(latitude, longitude);
+CREATE INDEX idx_gems_pearl_owner_id ON gems(pearl_owner_id);
 
--- 3) Cached AI stories
+-- 4) Cached AI stories
 CREATE TABLE gem_stories (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   gem_id UUID REFERENCES gems(id) ON DELETE CASCADE,
@@ -46,7 +61,7 @@ CREATE TABLE gem_stories (
   UNIQUE (gem_id, theme, language, prompt_version)
 );
 
--- 4) Optional: route request logs (debugging)
+-- 5) Optional: route request logs (debugging)
 CREATE TABLE route_logs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   theme TEXT NOT NULL,
@@ -65,7 +80,7 @@ CREATE TABLE route_logs (
 
 CREATE INDEX idx_route_logs_created_at ON route_logs(created_at);
 
--- 5) Dedicated analytics events (post-MVP admin portal v1)
+-- 6) Dedicated analytics events (post-MVP admin portal v1)
 CREATE TABLE analytics_events (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   occurred_at TIMESTAMP NOT NULL DEFAULT NOW(),
