@@ -13,6 +13,7 @@ if (!dbUrl) {
 
 const MAX_ATTEMPTS = 30;
 const RETRY_DELAY_MS = 2000;
+const MIGRATION_QUERY_ATTEMPTS = 5;
 const RETRYABLE_ERROR_CODES = new Set([
   'ECONNREFUSED',
   'ECONNRESET',
@@ -36,8 +37,27 @@ function isRetryableError(err) {
   return (
     RETRYABLE_ERROR_CODES.has(code) ||
     /the database system is starting up/i.test(message) ||
-    /terminating connection due to administrator command/i.test(message)
+    /terminating connection due to administrator command/i.test(message) ||
+    /connections? terminated unexpectedly/i.test(message) ||
+    /server closed the connection unexpectedly/i.test(message)
   );
+}
+
+async function retryTransientDatabaseError(label, operation, maxAttempts) {
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      return await operation();
+    } catch (err) {
+      if (!isRetryableError(err) || attempt === maxAttempts) {
+        throw err;
+      }
+
+      console.log(
+        `[migrate] ${label} failed transiently (attempt ${attempt}/${maxAttempts}): ${err.message}`,
+      );
+      await sleep(RETRY_DELAY_MS);
+    }
+  }
 }
 
 async function waitForDatabase(pool) {
@@ -81,13 +101,21 @@ async function migrate() {
     if (migrationFiles.length === 0) {
       const schema = fs.readFileSync(fallbackSchemaPath, 'utf8');
       console.log(`[migrate] running ${fallbackSchemaPath}`);
-      await pool.query(schema);
+      await retryTransientDatabaseError(
+        path.basename(fallbackSchemaPath),
+        () => pool.query(schema),
+        MIGRATION_QUERY_ATTEMPTS,
+      );
     } else {
       for (const fileName of migrationFiles) {
         const migrationPath = path.join(migrationsDir, fileName);
         const sql = fs.readFileSync(migrationPath, 'utf8');
         console.log(`[migrate] running ${migrationPath}`);
-        await pool.query(sql);
+        await retryTransientDatabaseError(
+          fileName,
+          () => pool.query(sql),
+          MIGRATION_QUERY_ATTEMPTS,
+        );
       }
     }
 

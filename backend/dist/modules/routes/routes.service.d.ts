@@ -22,5 +22,13 @@ export interface RouteResponse {
     polyline: string;
     warnings: string[];
 }
+interface RouteCandidateGem {
+    id: string;
+    title: string;
+    latitude: number;
+    longitude: number;
+}
+export declare function loadRouteCandidateGems(theme: string): Promise<RouteCandidateGem[]>;
 export declare function generateRoute(req: RouteRequest): Promise<RouteResponse>;
+export {};
 //# sourceMappingURL=routes.service.d.ts.map

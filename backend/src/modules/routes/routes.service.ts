@@ -27,6 +27,25 @@ export interface RouteResponse {
   warnings: string[];
 }
 
+interface RouteCandidateGem {
+  id: string;
+  title: string;
+  latitude: number;
+  longitude: number;
+}
+
+export async function loadRouteCandidateGems(
+  theme: string,
+): Promise<RouteCandidateGem[]> {
+  const candidates = await findByTheme(theme);
+  return candidates.map((g) => ({
+    id: g.id,
+    title: g.title,
+    latitude: g.latitude,
+    longitude: g.longitude,
+  }));
+}
+
 function haversineDistance(
   a: { lat: number; lng: number },
   b: { lat: number; lng: number }
@@ -42,11 +61,11 @@ function haversineDistance(
 }
 
 function selectGemsByDistance(
-  candidates: Array<{ id: string; title: string; latitude: number; longitude: number }>,
+  candidates: RouteCandidateGem[],
   start: { lat: number; lng: number },
   end: { lat: number; lng: number } | null,
   n: number
-): Array<{ id: string; title: string; latitude: number; longitude: number }> {
+): RouteCandidateGem[] {
   const scored = candidates.map((g) => {
     const pos = { lat: g.latitude, lng: g.longitude };
     const dStart = haversineDistance(start, pos);
@@ -86,13 +105,7 @@ export async function generateRoute(req: RouteRequest): Promise<RouteResponse> {
     throw { status: 400, message: 'Invalid end coordinates' };
   }
 
-  const candidates = await findByTheme(theme);
-  const gemCandidates = candidates.map((g) => ({
-    id: g.id,
-    title: g.title,
-    latitude: g.latitude,
-    longitude: g.longitude,
-  }));
+  const gemCandidates = await loadRouteCandidateGems(theme);
 
   if (gemCandidates.length < MIN_GEMS) {
     throw { status: 503, code: 'INSUFFICIENT_GEMS', message: 'Not enough gems for this theme' };
