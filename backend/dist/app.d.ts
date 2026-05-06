@@ -7,6 +7,7 @@ import { getOrCreateStory } from './modules/stories/stories.service';
 import { syncDatasets } from './modules/admin/sync.service';
 import { parseFrontendAnalyticsEvent, recordAnalyticsEventSafe } from './modules/analytics/service';
 import { getAnalyticsBreakdowns, getAnalyticsOverview, getAnalyticsTimeseries } from './modules/analytics/read.service';
+import { createAdminPearl, createPearlOwner, listPearlOwners } from './modules/admin/pearls.service';
 export interface AppDependencies {
     pingDb: typeof ping;
     findGemsByTheme: typeof findByTheme;
@@ -22,6 +23,9 @@ export interface AppDependencies {
     getAnalyticsOverview: typeof getAnalyticsOverview;
     getAnalyticsTimeseries: typeof getAnalyticsTimeseries;
     getAnalyticsBreakdowns: typeof getAnalyticsBreakdowns;
+    listPearlOwners: typeof listPearlOwners;
+    createPearlOwner: typeof createPearlOwner;
+    createAdminPearl: typeof createAdminPearl;
 }
 export declare function createApp(overrides?: Partial<AppDependencies>): import("express-serve-static-core").Express;
 declare const _default: import("express-serve-static-core").Express;

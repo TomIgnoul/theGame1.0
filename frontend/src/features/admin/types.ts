@@ -58,3 +58,45 @@ export interface AdminBreakdownsResponse {
   themeBreakdown: AdminThemeBreakdownRow[];
   poiBreakdown: AdminPoiBreakdownRow[];
 }
+
+export type AddPearlTheme =
+  | 'War'
+  | 'Museum'
+  | 'Streetart'
+  | 'Food'
+  | 'Culture';
+
+export interface PearlOwner {
+  id: string;
+  name: string;
+}
+
+export interface PearlOwnerListResponse {
+  items: PearlOwner[];
+}
+
+export interface CreatePearlOwnerInput {
+  name: string;
+}
+
+export interface CreatePearlInput {
+  name: string;
+  story: string;
+  address: string;
+  theme: AddPearlTheme;
+  latitude: number;
+  longitude: number;
+  pearlOwnerId: string;
+}
+
+export interface CreatedPearlResponse {
+  id: string;
+  name: string;
+  story: string;
+  address: string;
+  theme: AddPearlTheme;
+  latitude: number;
+  longitude: number;
+  pearlOwner: PearlOwner;
+  isRouteCandidate: boolean;
+}

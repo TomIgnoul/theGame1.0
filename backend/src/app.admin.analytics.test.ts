@@ -145,7 +145,10 @@ test('POST /api/admin/auth/logout clears the admin session cookie', async () => 
 
       const setCookie = response.headers.get('set-cookie');
       assert.match(setCookie ?? '', /thegame_admin_session=;/);
-      assert.match(setCookie ?? '', /Max-Age=0/i);
+      assert.match(
+        setCookie ?? '',
+        /(?:Max-Age=0|Expires=Thu, 01 Jan 1970 00:00:00 GMT)/i,
+      );
     });
   });
 });

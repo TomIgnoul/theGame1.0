@@ -41,6 +41,14 @@ import {
   issueAdminSessionCookie,
   verifyAdminPassphrase,
 } from './modules/admin/auth';
+import {
+  AdminPearlServiceError,
+  createAdminPearl,
+  createPearlOwner,
+  listPearlOwners,
+  parseCreatePearlInput,
+  parseCreatePearlOwnerInput,
+} from './modules/admin/pearls.service';
 import { AiRuntimeError } from './modules/ai/aiRuntime';
 import type { AnalyticsEventInput } from './modules/analytics/types';
 
@@ -59,6 +67,9 @@ export interface AppDependencies {
   getAnalyticsOverview: typeof getAnalyticsOverview;
   getAnalyticsTimeseries: typeof getAnalyticsTimeseries;
   getAnalyticsBreakdowns: typeof getAnalyticsBreakdowns;
+  listPearlOwners: typeof listPearlOwners;
+  createPearlOwner: typeof createPearlOwner;
+  createAdminPearl: typeof createAdminPearl;
 }
 
 const defaultDependencies: AppDependencies = {
@@ -76,6 +87,9 @@ const defaultDependencies: AppDependencies = {
   getAnalyticsOverview,
   getAnalyticsTimeseries,
   getAnalyticsBreakdowns,
+  listPearlOwners,
+  createPearlOwner,
+  createAdminPearl,
 };
 
 export function createApp(
@@ -450,7 +464,7 @@ export function createApp(
   // GH-AN-02 / GH-AN-03 / GH-AN-04 for read-only analytics KPI cards.
   app.get('/api/admin/analytics/overview', async (req: Request, res: Response) => {
     applyAdminNoStore(res);
-    if (!requireAdminAnalyticsSession(req, res)) {
+    if (!requireAdminSession(req, res)) {
       return;
     }
 
@@ -479,7 +493,7 @@ export function createApp(
   // GH-AN-02 / GH-AN-03 / GH-AN-04 for read-only analytics graphs.
   app.get('/api/admin/analytics/timeseries', async (req: Request, res: Response) => {
     applyAdminNoStore(res);
-    if (!requireAdminAnalyticsSession(req, res)) {
+    if (!requireAdminSession(req, res)) {
       return;
     }
 
@@ -509,7 +523,7 @@ export function createApp(
   // empty-state-friendly responses.
   app.get('/api/admin/analytics/breakdowns', async (req: Request, res: Response) => {
     applyAdminNoStore(res);
-    if (!requireAdminAnalyticsSession(req, res)) {
+    if (!requireAdminSession(req, res)) {
       return;
     }
 
@@ -530,6 +544,103 @@ export function createApp(
       res.status(500).json({
         error: 'Analytics breakdowns are unavailable',
         code: 'analytics_breakdowns_unavailable',
+      });
+    }
+  });
+
+  // Implements FR-27 / FR-30 / NFR-S7 and covers GH-PRL-02 / GH-PRL-05 for
+  // admin-only PearlOwner lookup.
+  app.get('/api/admin/pearl-owners', async (req: Request, res: Response) => {
+    applyAdminNoStore(res);
+    if (!requireAdminSession(req, res)) {
+      return;
+    }
+
+    const query = typeof req.query.query === 'string' ? req.query.query : undefined;
+
+    try {
+      const owners = await deps.listPearlOwners(query);
+      res.json({ items: owners });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({
+        error: 'PearlOwner lookup is unavailable',
+        code: 'pearl_owner_lookup_unavailable',
+      });
+    }
+  });
+
+  // Implements FR-30 / NFR-S7 and covers GH-PRL-02 / GH-PRL-05 for admin-only
+  // PearlOwner creation.
+  app.post('/api/admin/pearl-owners', async (req: Request, res: Response) => {
+    applyAdminNoStore(res);
+    if (!requireAdminSession(req, res)) {
+      return;
+    }
+
+    const parsed = parseCreatePearlOwnerInput(req.body);
+    if (!parsed.ok) {
+      res.status(400).json({
+        error: parsed.error,
+        code: parsed.code,
+      });
+      return;
+    }
+
+    try {
+      const owner = await deps.createPearlOwner(parsed.value);
+      res.status(201).json(owner);
+    } catch (err) {
+      if (err instanceof AdminPearlServiceError) {
+        res.status(err.status).json({
+          error: err.message,
+          code: err.code,
+        });
+        return;
+      }
+
+      console.error(err);
+      res.status(500).json({
+        error: 'PearlOwner create is unavailable',
+        code: 'pearl_owner_create_unavailable',
+      });
+    }
+  });
+
+  // Implements FR-27 / FR-28 / FR-29 / FR-30 / FR-31 / NFR-S7 and covers
+  // GH-PRL-01 / GH-PRL-03 / GH-PRL-04 / GH-PRL-05 for the backend Add Pearl
+  // foundation. Frontend UI remains out of scope for this prompt.
+  app.post('/api/admin/pearls', async (req: Request, res: Response) => {
+    applyAdminNoStore(res);
+    if (!requireAdminSession(req, res)) {
+      return;
+    }
+
+    const parsed = parseCreatePearlInput(req.body);
+    if (!parsed.ok) {
+      res.status(400).json({
+        error: parsed.error,
+        code: parsed.code,
+      });
+      return;
+    }
+
+    try {
+      const pearl = await deps.createAdminPearl(parsed.value);
+      res.status(201).json(pearl);
+    } catch (err) {
+      if (err instanceof AdminPearlServiceError) {
+        res.status(err.status).json({
+          error: err.message,
+          code: err.code,
+        });
+        return;
+      }
+
+      console.error(err);
+      res.status(500).json({
+        error: 'Pearl create is unavailable',
+        code: 'pearl_create_unavailable',
       });
     }
   });
@@ -589,7 +700,7 @@ function applyAdminNoStore(res: Response) {
   res.setHeader('Cache-Control', 'no-store');
 }
 
-function requireAdminAnalyticsSession(req: Request, res: Response) {
+function requireAdminSession(req: Request, res: Response) {
   if (hasValidAdminSession(req)) {
     return true;
   }

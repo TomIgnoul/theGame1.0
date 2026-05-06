@@ -5,6 +5,11 @@ services:
       POSTGRES_DB: thegame
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d thegame"]
+      interval: 2s
+      timeout: 5s
+      retries: 20
     ports:
       - "5432:5432"
     volumes:

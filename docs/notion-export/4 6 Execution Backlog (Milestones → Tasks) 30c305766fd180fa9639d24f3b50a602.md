@@ -158,7 +158,39 @@ De milestones (M0–M4) vertalen naar een uitvoerbaar backlog zodat:
 
 ---
 
-## 4.6.5 Output format per task (praktisch)
+## 4.6.5 Post-MVP governed feature track (PRL-00)
+
+### PRL-00 — Admin adds a Pearl (NOT STARTED)
+
+**Deliverable**
+
+- Een geauthenticeerde admin kan een handmatige Pearl met PearlOwner-relatie toevoegen, waarna die Pearl als actieve kandidaat beschikbaar is voor de bestaande routegeneratie-flow.
+
+**Scope guard**
+
+- Alleen admin-created Pearls.
+- Admin login/accountimplementatie is out of scope; PRL-00 gebruikt een bestaande admin-sessie.
+- Geen image upload, geocoding, moderation workflow of publieke submission.
+- Geen featurecode in de huidige governance-docs taak.
+
+**Implementation ticket split**
+
+1. PRL-00A — Governance baseline: FR-27 t/m FR-31, GH-PRL-01 t/m GH-PRL-05, NFR-S7 en traceability vastleggen — Owner: Project Lead — Evidence: `docs/traceability.md`
+2. PRL-00B — Database migration: `pearl_owners` + `gems.pearl_owner_id` + constraints/indexen — Owner: Data/DB Owner — Evidence: planned `TC-PRL-DB-01`
+3. PRL-00C — Backend API: PearlOwner search/create + Add Pearl endpoint met admin guard en validatie — Owner: Backend Owner — Evidence: planned `TC-PRL-API-01` t/m `TC-PRL-API-04`
+4. PRL-00D — Frontend UI: Add Pearl form, PearlOwner select/create, validation states — Owner: Frontend Owner — Evidence: planned `TC-PRL-UI-01` t/m `TC-PRL-UI-03`
+5. PRL-00E — Route integration: prove new active manual Pearl is eligible for route generation — Owner: Backend Owner + Frontend Owner — Evidence: planned `TC-PRL-INT-01`
+6. PRL-00F — Governance closure: traceability status, test evidence and PR checklist update — Owner: Project Lead — Evidence: planned `TC-PRL-DOC-01`
+
+**Dependencies**
+
+- Existing admin-session mechanism (no new login implementation in PRL-00)
+- Existing route candidate selection from active `gems`
+- Theme whitelist remains: War, Museum, Streetart, Food, Culture
+
+---
+
+## 4.6.6 Output format per task (praktisch)
 
 Per task wordt bijgehouden:
 
@@ -170,7 +202,7 @@ Per task wordt bijgehouden:
 
 ---
 
-### 4.6.6 Next Focus (nu)
+### 4.6.7 Next Focus (nu)
 
 - **Close M3-B** zodra er minimale frontend bestaat:
     - polyline tekenen uit `coordinates`

@@ -64,16 +64,22 @@ export function AdminDashboardPage({
           </p>
         </div>
 
-        <button
-          className="admin-secondary-button"
-          type="button"
-          onClick={() => {
-            void onLogout();
-          }}
-          disabled={isLoggingOut}
-        >
-          {isLoggingOut ? 'Signing out...' : 'Logout'}
-        </button>
+        <div className="admin-dashboard-actions">
+          <a className="admin-secondary-link" href="/admin/pearls/new">
+            Add Pearl
+          </a>
+
+          <button
+            className="admin-secondary-button"
+            type="button"
+            onClick={() => {
+              void onLogout();
+            }}
+            disabled={isLoggingOut}
+          >
+            {isLoggingOut ? 'Signing out...' : 'Logout'}
+          </button>
+        </div>
       </header>
 
       <AnalyticsFilters

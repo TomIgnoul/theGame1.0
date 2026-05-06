@@ -22,6 +22,20 @@ Doel: vastleggen welke bron-data is ingeladen (Open Data Brussels of andere).
 - `last_synced_at` TIMESTAMP
 - `created_at` TIMESTAMP DEFAULT NOW()
 
+#### `pearl_owners` — PearlOwner records for manual Pearls (PRL-00 planned)
+
+Doel: eigenaren/beheerders modelleren als echte relatie voor handmatig toegevoegde Pearls.
+
+- `id` UUID PRIMARY KEY DEFAULT `gen_random_uuid()`
+- `name` TEXT NOT NULL
+- `created_at` TIMESTAMP DEFAULT NOW()
+- `updated_at` TIMESTAMP DEFAULT NOW()
+
+Belangrijke constraints/indexen:
+
+- `UNIQUE (name)`
+- `CREATE INDEX idx_pearl_owners_name ON pearl_owners(name);`
+
 #### `gems` — genormaliseerde POI records
 
 Doel: project-owned “Gem” entiteiten voor de applicatie.
@@ -29,6 +43,7 @@ Doel: project-owned “Gem” entiteiten voor de applicatie.
 - `id` UUID PRIMARY KEY DEFAULT `gen_random_uuid()`
 - `dataset_id` UUID REFERENCES datasets(id)
 - `external_id` TEXT                  -- original id in dataset (if any)
+- `pearl_owner_id` UUID REFERENCES pearl_owners(id)
 - `title` TEXT NOT NULL
 - `theme` TEXT NOT NULL               -- MVP: single theme per gem
 - `description_short` TEXT
@@ -44,8 +59,17 @@ Doel: project-owned “Gem” entiteiten voor de applicatie.
 Belangrijke constraints/indexen:
 
 - `UNIQUE (dataset_id, external_id)`
+- `CHECK (theme IN ('War','Museum','Streetart','Food','Culture'))`
+- `CHECK (source_type <> 'manual' OR pearl_owner_id IS NOT NULL)`
 - `CREATE INDEX idx_gems_theme ON gems(theme);`
 - `CREATE INDEX idx_gems_lat_lng ON gems(latitude, longitude);`
+- `CREATE INDEX idx_gems_pearl_owner_id ON gems(pearl_owner_id);`
+
+PRL-00 route-impact rule:
+
+- Handmatig toegevoegde Pearls worden in `gems` opgeslagen met `source_type='manual'`, `is_active=true`, geldige coördinaten en een verplichte `pearl_owner_id`.
+- De bestaande routegeneratie gebruikt actieve `gems` als kandidaatbron; er komt geen aparte Pearl-routebron.
+- Open-data gems mogen `pearl_owner_id = NULL` houden.
 
 #### `gem_stories` — AI story cache
 
@@ -140,6 +164,6 @@ Aanbevolen indexen:
 ### Privacy constraint (link met NFR-S2)
 
 - **Geen chat logs** in DB.
-- Alleen `datasets`, `gems`, `gem_stories`, optioneel `route_logs` en dedicated `analytics_events` worden opgeslagen.
+- Alleen `datasets`, `pearl_owners`, `gems`, `gem_stories`, optioneel `route_logs` en dedicated `analytics_events` worden opgeslagen.
 - Chatinput/-output blijft stateless en wordt niet persistenter opgeslagen.
 - `analytics_events` bevat geen chat bodies, geen AI-antwoorden, geen request bodies en geen directe PII.

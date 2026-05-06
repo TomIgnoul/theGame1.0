@@ -1,9 +1,19 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.loadRouteCandidateGems = loadRouteCandidateGems;
 exports.generateRoute = generateRoute;
 const constants_1 = require("../../config/constants");
 const gems_repo_1 = require("../gems/gems.repo");
 const routing_provider_1 = require("./routing.provider");
+async function loadRouteCandidateGems(theme) {
+    const candidates = await (0, gems_repo_1.findByTheme)(theme);
+    return candidates.map((g) => ({
+        id: g.id,
+        title: g.title,
+        latitude: g.latitude,
+        longitude: g.longitude,
+    }));
+}
 function haversineDistance(a, b) {
     const R = 6371e3;
     const φ1 = (a.lat * Math.PI) / 180;
@@ -49,13 +59,7 @@ async function generateRoute(req) {
     if (end && (end.lat < -90 || end.lat > 90 || end.lng < -180 || end.lng > 180)) {
         throw { status: 400, message: 'Invalid end coordinates' };
     }
-    const candidates = await (0, gems_repo_1.findByTheme)(theme);
-    const gemCandidates = candidates.map((g) => ({
-        id: g.id,
-        title: g.title,
-        latitude: g.latitude,
-        longitude: g.longitude,
-    }));
+    const gemCandidates = await loadRouteCandidateGems(theme);
     if (gemCandidates.length < constants_1.MIN_GEMS) {
         throw { status: 503, code: 'INSUFFICIENT_GEMS', message: 'Not enough gems for this theme' };
     }

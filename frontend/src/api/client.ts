@@ -153,4 +153,40 @@ export const adminApi = {
         credentials: 'include',
       },
     ),
+  pearlOwners: (query?: string) => {
+    const params = new URLSearchParams();
+    if (query?.trim()) {
+      params.set('query', query.trim());
+    }
+
+    const suffix = params.toString() ? `?${params.toString()}` : '';
+    return api<import('../features/admin/types').PearlOwnerListResponse>(
+      `/api/admin/pearl-owners${suffix}`,
+      {
+        credentials: 'include',
+      },
+    );
+  },
+  createPearlOwner: (
+    input: import('../features/admin/types').CreatePearlOwnerInput,
+  ) =>
+    api<import('../features/admin/types').PearlOwner>(
+      '/api/admin/pearl-owners',
+      {
+        method: 'POST',
+        credentials: 'include',
+        body: JSON.stringify(input),
+      },
+    ),
+  createPearl: (
+    input: import('../features/admin/types').CreatePearlInput,
+  ) =>
+    api<import('../features/admin/types').CreatedPearlResponse>(
+      '/api/admin/pearls',
+      {
+        method: 'POST',
+        credentials: 'include',
+        body: JSON.stringify(input),
+      },
+    ),
 };
