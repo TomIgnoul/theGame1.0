@@ -1,0 +1,12 @@
+{
+  "feature": "Feature name here",
+  "milestone": "M3-B",
+  "fr_ids": ["FR-10", "FR-11", "FR-12"],
+  "nfr_ids": [],
+  "summary": "Short explanation of what was implemented or verified.",
+  "result": "PASS",
+  "evidence_type": "screenshot | workflow test | curl output | manual test | automated test",
+  "evidence_url": "docs/evidence/path-or-related-file.md",
+  "commit_url": "https://github.com/TomIgnoul/theGame1.0/pull/PR_NUMBER",
+  "lesson_learned": "Short note about what worked, failed, or changed."
+}
