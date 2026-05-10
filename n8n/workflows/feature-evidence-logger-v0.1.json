@@ -6,20 +6,64 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        0,
-        0
+        -280,
+        -260
       ],
       "id": "c7037e7b-88cd-4007-a9b5-b15ec147f4b5",
       "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "feature-evidence",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -60,
+        -260
+      ],
+      "id": "80fcf66e-aca5-405d-b429-4e74d80093f2",
+      "name": "Webhook",
+      "webhookId": "df03a944-5918-4d2e-bdb6-4e0ccad45332"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"ok\": true,\n  \"message\": \"Evidence payload received\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        160,
+        -260
+      ],
+      "id": "3e71a0ec-a39b-49de-8a4e-7b25681f5c59",
+      "name": "Respond to Webhook"
     }
   ],
   "pinData": {},
-  "connections": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
   "active": false,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "1b43b5de-e00c-469d-ab71-b18096eef497",
+  "versionId": "0c763afb-04a9-4860-b462-635b35b75d80",
   "meta": {
     "instanceId": "56c7a76d414aac0fed718bcf3d5e61d8f50513f7ae9000244dcc6a9be2d8273c"
   },
