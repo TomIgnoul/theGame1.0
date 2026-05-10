@@ -198,9 +198,21 @@ export function RouteConfigPanel() {
       {routeResult && (
         <div style={{ marginTop: '1rem', padding: '0.75rem', background: '#f0fdf4', borderRadius: 4 }}>
           <p style={{ margin: 0, fontWeight: 600 }}>Route: {routeResult.kmResult} km</p>
+          <p style={{ margin: '0.35rem 0 0', fontSize: '0.8rem', color: '#14532d' }}>
+            Route proof: the route is shown as a line with numbered stops.
+          </p>
           <p style={{ margin: '0.25rem 0 0', fontSize: '0.875rem', color: '#166534' }}>
             {routeResult.gems.length} gems
           </p>
+          {routeResult.gems.length > 0 && (
+            <ol style={{ margin: '0.75rem 0 0', paddingLeft: '1.25rem', fontSize: '0.875rem' }}>
+              {routeResult.gems.map((gem, index) => (
+                <li key={gem.id} style={{ marginTop: index === 0 ? 0 : '0.35rem' }}>
+                  <strong>Stop {index + 1}</strong>: {gem.title}
+                </li>
+              ))}
+            </ol>
+          )}
           <button
             type="button"
             onClick={() => {
