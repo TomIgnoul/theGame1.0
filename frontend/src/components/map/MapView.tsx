@@ -3,7 +3,9 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouteStore } from '../../store/routeStore';
 import { useGemDetailStore } from '../../store/gemDetailStore';
 import { gemsApi } from '../../api/client';
+import pearlMarkerIcon from '../../assets/pearl-marker.svg';
 import { GemMarkers } from './GemMarkers';
+import { isAdminCreatedPearl } from './markerUtils';
 import { RouteOverlay } from './RouteOverlay';
 import { decodePolyline } from '../../utils/polyline';
 
@@ -142,6 +144,10 @@ export function MapView() {
 
   const startPoint = start ? toFallbackPoint(start.lat, start.lng) : null;
   const endPoint = end ? toFallbackPoint(end.lat, end.lng) : null;
+  const fallbackGemMarkers = gems.map((gem) => ({
+    gem,
+    point: toFallbackPoint(gem.latitude, gem.longitude),
+  }));
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%', minHeight: 400 }}>
@@ -222,6 +228,47 @@ export function MapView() {
                   .join(' ')}
               />
             )}
+            {fallbackGemMarkers.map(({ gem, point }) => (
+              <g
+                key={gem.id}
+                role="button"
+                tabIndex={0}
+                aria-label={`Open ${gem.title}`}
+                style={{ cursor: 'pointer' }}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setSelectedGemId(gem.id);
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    setSelectedGemId(gem.id);
+                  }
+                }}
+              >
+                <title>{gem.title}</title>
+                {isAdminCreatedPearl(gem) ? (
+                  <image
+                    href={pearlMarkerIcon}
+                    x={point.x - 2.1}
+                    y={point.y - 4.7}
+                    width={4.2}
+                    height={4.9}
+                    preserveAspectRatio="xMidYMid meet"
+                  />
+                ) : (
+                  <circle
+                    cx={point.x}
+                    cy={point.y}
+                    r={1.45}
+                    fill="#2563eb"
+                    stroke="#ffffff"
+                    strokeWidth={0.5}
+                  />
+                )}
+              </g>
+            ))}
             {startPoint && <circle cx={startPoint.x} cy={startPoint.y} r={1.8} fill="#16a34a" />}
             {endPoint && <circle cx={endPoint.x} cy={endPoint.y} r={1.8} fill="#dc2626" />}
           </svg>

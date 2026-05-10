@@ -7,6 +7,7 @@ export interface GemPin {
     longitude: number;
     address: string | null;
     practicalInfo: Record<string, unknown>;
+    sourceType: string;
 }
 export interface Gem {
     id: string;

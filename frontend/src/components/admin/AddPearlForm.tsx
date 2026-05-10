@@ -28,7 +28,6 @@ type FormErrors = Partial<Record<keyof FormState | 'pearlOwnerId', string>>;
 interface FormState {
   name: string;
   story: string;
-  address: string;
   theme: AddPearlTheme | '';
   latitude: string;
   longitude: string;
@@ -38,7 +37,6 @@ interface FormState {
 const initialFormState: FormState = {
   name: '',
   story: '',
-  address: '',
   theme: 'Culture',
   latitude: '',
   longitude: '',
@@ -83,8 +81,8 @@ export function AddPearlForm({
           <h1 className="admin-dashboard-title">Add Pearl</h1>
           <p className="admin-dashboard-copy">
             Create a route-ready Pearl with an explicit PearlOwner
-            relationship. No images, geocoding, moderation, or public
-            submission flow is part of this form.
+            relationship. Coordinates are the location source; no images,
+            moderation, or public submission flow is part of this form.
           </p>
         </div>
 
@@ -137,20 +135,6 @@ export function AddPearlForm({
             rows={5}
           />
           {errors.story && <p className="admin-inline-error">{errors.story}</p>}
-        </label>
-
-        <label className="admin-field">
-          <span className="admin-field__label">Address</span>
-          <input
-            className="admin-input"
-            value={form.address}
-            onChange={(event) => {
-              updateField(setForm, 'address', event.target.value);
-            }}
-          />
-          {errors.address && (
-            <p className="admin-inline-error">{errors.address}</p>
-          )}
         </label>
 
         <div className="admin-pearl-form-grid">
@@ -235,10 +219,6 @@ function parseForm(form: FormState): ParsedForm {
     errors.story = 'Story is required.';
   }
 
-  if (!form.address.trim()) {
-    errors.address = 'Address is required.';
-  }
-
   if (!isAddPearlTheme(form.theme)) {
     errors.theme = 'Choose one of the allowed PRL themes.';
   }
@@ -276,7 +256,6 @@ function parseForm(form: FormState): ParsedForm {
     input: {
       name: form.name.trim(),
       story: form.story.trim(),
-      address: form.address.trim(),
       theme: form.theme,
       latitude,
       longitude,

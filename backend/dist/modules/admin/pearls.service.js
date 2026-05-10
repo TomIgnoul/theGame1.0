@@ -45,10 +45,6 @@ function parseCreatePearlInput(body) {
     if (!story) {
         return { ok: false, error: 'story is required', code: 'missing_story' };
     }
-    const address = readRequiredString(body, 'address');
-    if (!address) {
-        return { ok: false, error: 'address is required', code: 'missing_address' };
-    }
     const theme = readRequiredString(body, 'theme');
     if (!isValidAddPearlTheme(theme)) {
         return {
@@ -86,7 +82,6 @@ function parseCreatePearlInput(body) {
         value: {
             name,
             story,
-            address,
             theme,
             latitude,
             longitude,
@@ -149,7 +144,7 @@ async function createAdminPearl(input) {
          source_type,
          is_active
        )
-       VALUES ($1, $2, $3, $4, $5, $6, $7, 'manual', true)
+       VALUES ($1, $2, $3, $4, NULL, $5, $6, 'manual', true)
        RETURNING
          id,
          title,
@@ -163,7 +158,6 @@ async function createAdminPearl(input) {
             input.name,
             input.theme,
             input.story,
-            input.address,
             input.latitude,
             input.longitude,
         ]);

@@ -22,7 +22,6 @@ export interface CreatePearlOwnerInput {
 export interface CreatePearlInput {
   name: string;
   story: string;
-  address: string;
   theme: AddPearlTheme;
   latitude: number;
   longitude: number;
@@ -33,7 +32,7 @@ export interface CreatedPearl {
   id: string;
   name: string;
   story: string;
-  address: string;
+  address: string | null;
   theme: AddPearlTheme;
   latitude: number;
   longitude: number;
@@ -49,7 +48,7 @@ interface CreatedPearlRow {
   id: string;
   title: string;
   descriptionShort: string;
-  address: string;
+  address: string | null;
   theme: AddPearlTheme;
   latitude: string | number;
   longitude: string | number;
@@ -95,11 +94,6 @@ export function parseCreatePearlInput(
     return { ok: false, error: 'story is required', code: 'missing_story' };
   }
 
-  const address = readRequiredString(body, 'address');
-  if (!address) {
-    return { ok: false, error: 'address is required', code: 'missing_address' };
-  }
-
   const theme = readRequiredString(body, 'theme');
   if (!isValidAddPearlTheme(theme)) {
     return {
@@ -141,7 +135,6 @@ export function parseCreatePearlInput(
     value: {
       name,
       story,
-      address,
       theme,
       latitude,
       longitude,
@@ -238,7 +231,7 @@ export async function createAdminPearl(
          source_type,
          is_active
        )
-       VALUES ($1, $2, $3, $4, $5, $6, $7, 'manual', true)
+       VALUES ($1, $2, $3, $4, NULL, $5, $6, 'manual', true)
        RETURNING
          id,
          title,
@@ -253,7 +246,6 @@ export async function createAdminPearl(
         input.name,
         input.theme,
         input.story,
-        input.address,
         input.latitude,
         input.longitude,
       ],

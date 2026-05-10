@@ -1,0 +1,16 @@
+<svg width="48" height="56" viewBox="0 0 48 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M24 54C24 54 43 34.7 43 21C43 10.51 34.49 2 24 2C13.51 2 5 10.51 5 21C5 34.7 24 54 24 54Z" fill="#0f766e"/>
+  <path d="M24 50.5C24 50.5 39.5 33.92 39.5 21.25C39.5 12.69 32.56 5.75 24 5.75C15.44 5.75 8.5 12.69 8.5 21.25C8.5 33.92 24 50.5 24 50.5Z" fill="#d9f7f2"/>
+  <circle cx="24" cy="22" r="11" fill="url(#pearlGradient)"/>
+  <circle cx="19.5" cy="17.5" r="3.2" fill="#ffffff" fill-opacity="0.9"/>
+  <path d="M15 29C19.8 34.25 28.25 34.2 33 28.9" stroke="#7fb7b0" stroke-width="2" stroke-linecap="round"/>
+  <path d="M12 43.5C16.35 48.95 24 54 24 54C24 54 31.65 48.95 36 43.5C32.5 45.2 28.45 46.15 24 46.15C19.55 46.15 15.5 45.2 12 43.5Z" fill="#0b5f59" fill-opacity="0.22"/>
+  <defs>
+    <radialGradient id="pearlGradient" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(19 16) rotate(48.37) scale(21.17)">
+      <stop stop-color="#ffffff"/>
+      <stop offset="0.42" stop-color="#f7fbff"/>
+      <stop offset="0.76" stop-color="#d4ece8"/>
+      <stop offset="1" stop-color="#9bc9c3"/>
+    </radialGradient>
+  </defs>
+</svg>

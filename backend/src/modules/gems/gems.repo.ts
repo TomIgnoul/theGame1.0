@@ -9,6 +9,7 @@ export interface GemPin {
   longitude: number;
   address: string | null;
   practicalInfo: Record<string, unknown>;
+  sourceType: string;
 }
 
 export interface Gem {
@@ -31,7 +32,7 @@ export async function findByTheme(theme?: string): Promise<GemPin[]> {
   const client = await pool.connect();
   try {
     let query = `
-      SELECT id, title, theme, latitude, longitude, address, practical_info as "practicalInfo"
+      SELECT id, title, theme, latitude, longitude, address, practical_info as "practicalInfo", source_type as "sourceType"
       FROM gems WHERE is_active = true
     `;
     const params: unknown[] = [];
@@ -50,6 +51,7 @@ export async function findByTheme(theme?: string): Promise<GemPin[]> {
       longitude: Number(r.longitude),
       address: r.address,
       practicalInfo: r.practicalInfo ?? {},
+      sourceType: r.sourceType,
     }));
   } finally {
     client.release();
