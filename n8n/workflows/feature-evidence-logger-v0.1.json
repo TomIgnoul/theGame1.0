@@ -36,7 +36,7 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        220,
+        440,
         40
       ],
       "id": "3e71a0ec-a39b-49de-8a4e-7b25681f5c59",
@@ -44,7 +44,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const body = $json.body ?? $json;\n\nconst requiredFields = [\"feature\", \"milestone\", \"fr_ids\", \"summary\", \"result\"];\n\nfor (const field of requiredFields) {\n  if (!body[field]) {\n    throw new Error(`Missing required field: ${field}`);\n  }\n}\n\nconst createdAt = new Date().toISOString();\nconst datePrefix = createdAt.slice(0, 10);\n\nconst safeFeatureName = body.feature\n  .toLowerCase()\n  .replace(/[^a-z0-9]+/g, \"-\")\n  .replace(/(^-|-$)/g, \"\");\n\nconst fileName = `${datePrefix}-${body.milestone.toLowerCase()}-${safeFeatureName}.md`;\n\nconst frList = Array.isArray(body.fr_ids)\n  ? body.fr_ids.map(id => `- ${id}`).join(\"\\n\")\n  : \"- none\";\n\nconst nfrList = Array.isArray(body.nfr_ids) && body.nfr_ids.length > 0\n  ? body.nfr_ids.map(id => `- ${id}`).join(\"\\n\")\n  : \"- none\";\n\nconst markdown = `# Evidence — ${body.milestone} ${body.feature}\n\n## Feature\n${body.feature}\n\n## Milestone\n${body.milestone}\n\n## Linked Functional Requirements\n${frList}\n\n## Linked Non-Functional Requirements\n${nfrList}\n\n## Result\n${body.result}\n\n## Summary\n${body.summary}\n\n## Evidence\n- Type: ${body.evidence_type ?? \"not provided\"}\n- URL/path: ${body.evidence_url ?? \"not provided\"}\n- Commit: ${body.commit_url ?? \"not provided\"}\n\n## Lesson Learned\n${body.lesson_learned ?? \"not provided\"}\n\n## Created At\n${createdAt}\n`;\n\nreturn [\n  {\n    json: {\n      ok: true,\n      message: \"Evidence payload formatted\",\n      fileName,\n      markdown\n    }\n  }\n];"
+        "jsCode": "const body = $json.body ?? $json;\n\nconst requiredFields = [\"feature\", \"milestone\", \"fr_ids\", \"summary\", \"result\"];\n\nfor (const field of requiredFields) {\n  if (!body[field]) {\n    throw new Error(`Missing required field: ${field}`);\n  }\n}\n\nconst createdAt = new Date().toISOString();\nconst datePrefix = createdAt.slice(0, 10);\n\nconst safeFeatureName = body.feature\n  .toLowerCase()\n  .replace(/[^a-z0-9]+/g, \"-\")\n  .replace(/(^-|-$)/g, \"\");\n\nconst fileName = `${datePrefix}-${body.milestone.toLowerCase()}-${safeFeatureName}.md`;\n\nconst frList = Array.isArray(body.fr_ids)\n  ? body.fr_ids.map(id => `- ${id}`).join(\"\\n\")\n  : \"- none\";\n\nconst nfrList = Array.isArray(body.nfr_ids) && body.nfr_ids.length > 0\n  ? body.nfr_ids.map(id => `- ${id}`).join(\"\\n\")\n  : \"- none\";\n\nconst markdown = `# Evidence — ${body.milestone} ${body.feature}\n\n## Feature\n${body.feature}\n\n## Milestone\n${body.milestone}\n\n## Linked Functional Requirements\n${frList}\n\n## Linked Non-Functional Requirements\n${nfrList}\n\n## Result\n${body.result}\n\n## Summary\n${body.summary}\n\n## Evidence\n- Type: ${body.evidence_type ?? \"not provided\"}\n- URL/path: ${body.evidence_url ?? \"not provided\"}\n- Commit: ${body.commit_url ?? \"not provided\"}\n\n## Lesson Learned\n${body.lesson_learned ?? \"not provided\"}\n\n## Created At\n${createdAt}\n`;\n\nconst buffer = Buffer.from(markdown, \"utf8\");\n\nreturn [\n  {\n    json: {\n      ok: true,\n      message: \"Evidence payload formatted and saved\",\n      fileName,\n      filePath: `/workspace/docs/evidence/${fileName}`,\n      markdown\n    },\n    binary: {\n      data: {\n        data: buffer.toString(\"base64\"),\n        mimeType: \"text/markdown\",\n        fileName\n      }\n    }\n  }\n];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -54,6 +54,21 @@
       ],
       "id": "07df7d33-0497-471e-bbdf-6c7fc817e4ea",
       "name": "Code"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "={{ $json.filePath }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        380,
+        -260
+      ],
+      "id": "ab27170b-664e-4b10-bb9d-12b1dab3c646",
+      "name": "Read/Write Files from Disk"
     }
   ],
   "pinData": {},
@@ -73,6 +88,17 @@
       "main": [
         [
           {
+            "node": "Read/Write Files from Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk": {
+      "main": [
+        [
+          {
             "node": "Respond to Webhook",
             "type": "main",
             "index": 0
@@ -85,7 +111,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "c2362d6d-098a-44f4-acc4-01d418b12e83",
+  "versionId": "62600628-3ef2-42a6-be6f-807686e5cb49",
   "meta": {
     "instanceId": "56c7a76d414aac0fed718bcf3d5e61d8f50513f7ae9000244dcc6a9be2d8273c"
   },
