@@ -31,23 +31,45 @@
     },
     {
       "parameters": {
-        "respondWith": "json",
-        "responseBody": "{\n  \"ok\": true,\n  \"message\": \"Evidence payload received\"\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        160,
-        -260
+        220,
+        40
       ],
       "id": "3e71a0ec-a39b-49de-8a4e-7b25681f5c59",
       "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body ?? $json;\n\nconst requiredFields = [\"feature\", \"milestone\", \"fr_ids\", \"summary\", \"result\"];\n\nfor (const field of requiredFields) {\n  if (!body[field]) {\n    throw new Error(`Missing required field: ${field}`);\n  }\n}\n\nconst createdAt = new Date().toISOString();\n\nconst frList = Array.isArray(body.fr_ids)\n  ? body.fr_ids.map(id => `- ${id}`).join(\"\\n\")\n  : \"- none\";\n\nconst nfrList = Array.isArray(body.nfr_ids) && body.nfr_ids.length > 0\n  ? body.nfr_ids.map(id => `- ${id}`).join(\"\\n\")\n  : \"- none\";\n\nconst markdown = `# Evidence — ${body.milestone} ${body.feature}\n\n## Feature\n${body.feature}\n\n## Milestone\n${body.milestone}\n\n## Linked Functional Requirements\n${frList}\n\n## Linked Non-Functional Requirements\n${nfrList}\n\n## Result\n${body.result}\n\n## Summary\n${body.summary}\n\n## Evidence\n- Type: ${body.evidence_type ?? \"not provided\"}\n- URL/path: ${body.evidence_url ?? \"not provided\"}\n- Commit: ${body.commit_url ?? \"not provided\"}\n\n## Lesson Learned\n${body.lesson_learned ?? \"not provided\"}\n\n## Created At\n${createdAt}\n`;\n\nreturn [\n  {\n    json: {\n      ok: true,\n      message: \"Evidence payload formatted\",\n      markdown\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        160,
+        -260
+      ],
+      "id": "07df7d33-0497-471e-bbdf-6c7fc817e4ea",
+      "name": "Code"
     }
   ],
   "pinData": {},
   "connections": {
     "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
       "main": [
         [
           {
