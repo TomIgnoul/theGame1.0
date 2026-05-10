@@ -1,0 +1,28 @@
+{
+  "name": "Feature Evidence Logger v0.1",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "c7037e7b-88cd-4007-a9b5-b15ec147f4b5",
+      "name": "When clicking ‘Test workflow’"
+    }
+  ],
+  "pinData": {},
+  "connections": {},
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1b43b5de-e00c-469d-ab71-b18096eef497",
+  "meta": {
+    "instanceId": "56c7a76d414aac0fed718bcf3d5e61d8f50513f7ae9000244dcc6a9be2d8273c"
+  },
+  "id": "9TF60YMHp2XdKXlS",
+  "tags": []
+}
