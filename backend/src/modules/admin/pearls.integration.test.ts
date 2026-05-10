@@ -22,7 +22,7 @@ interface StoredGem {
   title: string;
   theme: AddPearlTheme;
   descriptionShort: string;
-  address: string;
+  address: string | null;
   latitude: number;
   longitude: number;
   practicalInfo: Record<string, unknown> | null;
@@ -68,7 +68,6 @@ test('admin-created Pearl is persisted as one active manual gem and appears in r
     const pearl = await createAdminPearl({
       name: 'Hidden Courtyard',
       story: 'A small story about a quiet courtyard in Brussels.',
-      address: 'Rue Example 12, Brussels',
       theme: 'Culture',
       latitude: 50.8467,
       longitude: 4.3525,
@@ -138,9 +137,9 @@ function createFakeClient(state: FakeState): FakePoolClient {
           title: readStringParam(params, 1),
           theme: readStringParam(params, 2) as AddPearlTheme,
           descriptionShort: readStringParam(params, 3),
-          address: readStringParam(params, 4),
-          latitude: readNumberParam(params, 5),
-          longitude: readNumberParam(params, 6),
+          address: null,
+          latitude: readNumberParam(params, 4),
+          longitude: readNumberParam(params, 5),
           practicalInfo: null,
           sourceType: 'manual',
           isActive: true,
@@ -163,7 +162,7 @@ function createFakeClient(state: FakeState): FakePoolClient {
 
       if (
         normalizedSql.startsWith(
-          'SELECT id, title, theme, latitude, longitude, address, practical_info as "practicalInfo" FROM gems WHERE is_active = true',
+          'SELECT id, title, theme, latitude, longitude, address, practical_info as "practicalInfo", source_type as "sourceType" FROM gems WHERE is_active = true',
         )
       ) {
         const theme = params.length > 0 ? readStringParam(params, 0) : null;
@@ -179,6 +178,7 @@ function createFakeClient(state: FakeState): FakePoolClient {
             longitude: gem.longitude,
             address: gem.address,
             practicalInfo: gem.practicalInfo,
+            sourceType: gem.sourceType,
           }));
 
         return asRows<Row>(gems);

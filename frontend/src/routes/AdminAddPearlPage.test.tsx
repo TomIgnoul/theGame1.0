@@ -40,7 +40,7 @@ describe('AdminAddPearlPage', () => {
     ).toBeTruthy();
     expect(screen.getByLabelText('Name')).toBeTruthy();
     expect(screen.getByLabelText('Story')).toBeTruthy();
-    expect(screen.getByLabelText('Address')).toBeTruthy();
+    expect(screen.queryByLabelText('Address')).toBeNull();
     expect(await screen.findByText('Visit Brussels')).toBeTruthy();
   });
 
@@ -51,6 +51,7 @@ describe('AdminAddPearlPage', () => {
       .mockImplementation(async (input) => ({
         id: '44444444-4444-4444-8444-444444444444',
         ...input,
+        address: null,
         pearlOwner: EXISTING_OWNER,
         isRouteCandidate: true,
       }));
@@ -90,6 +91,7 @@ describe('AdminAddPearlPage', () => {
       .mockImplementation(async (input) => ({
         id: '44444444-4444-4444-8444-444444444444',
         ...input,
+        address: null,
         pearlOwner: NEW_OWNER,
         isRouteCandidate: true,
       }));
@@ -126,7 +128,6 @@ describe('AdminAddPearlPage', () => {
 
     expect(await screen.findByText('Name is required.')).toBeTruthy();
     expect(screen.getByText('Story is required.')).toBeTruthy();
-    expect(screen.getByText('Address is required.')).toBeTruthy();
     expect(screen.getByText('Latitude must be a number between -90 and 90.')).toBeTruthy();
     expect(screen.getByText('Longitude must be a number between -180 and 180.')).toBeTruthy();
     expect(screen.getByText('PearlOwner is required.')).toBeTruthy();
@@ -229,7 +230,6 @@ async function fillPearlFields(
     screen.getByLabelText('Story'),
     'A small story about a quiet courtyard in Brussels.',
   );
-  await user.type(screen.getByLabelText('Address'), 'Rue Example 12, Brussels');
   await user.type(screen.getByLabelText('Latitude'), overrides.latitude ?? '50.8467');
   await user.type(screen.getByLabelText('Longitude'), overrides.longitude ?? '4.3525');
 }
@@ -238,7 +238,6 @@ function expectedPearlInput(pearlOwnerId: string): CreatePearlInput {
   return {
     name: 'Hidden Courtyard',
     story: 'A small story about a quiet courtyard in Brussels.',
-    address: 'Rue Example 12, Brussels',
     theme: 'Culture',
     latitude: 50.8467,
     longitude: 4.3525,

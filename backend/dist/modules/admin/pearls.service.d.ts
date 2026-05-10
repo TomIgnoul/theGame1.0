@@ -10,7 +10,6 @@ export interface CreatePearlOwnerInput {
 export interface CreatePearlInput {
     name: string;
     story: string;
-    address: string;
     theme: AddPearlTheme;
     latitude: number;
     longitude: number;
@@ -20,7 +19,7 @@ export interface CreatedPearl {
     id: string;
     name: string;
     story: string;
-    address: string;
+    address: string | null;
     theme: AddPearlTheme;
     latitude: number;
     longitude: number;
