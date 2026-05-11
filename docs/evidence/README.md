@@ -1,8 +1,3 @@
-Yes, it breaks because I wrapped Markdown inside a Markdown code block and then used more triple backticks inside it. Use `~~~` fences inside the file instead.
-
-Paste this into `docs/evidence/README.md`:
-
-```markdown
 # Evidence Directory
 
 ## Purpose
